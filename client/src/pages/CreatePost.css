@@ -1,0 +1,41 @@
+.create-post {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.create-post h2 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.create-post form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.create-post input,
+.create-post textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.create-post input:focus,
+.create-post textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.create-post textarea {
+  resize: vertical;
+}
+
+.create-post button {
+  align-self: flex-end;
+}

@@ -1,0 +1,37 @@
+.vote-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 40px;
+  padding-top: 0.2rem;
+}
+
+.vote-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #666;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+.vote-btn:hover {
+  background: #1a1a2e;
+}
+
+.vote-btn.upvote.active {
+  color: #e94560;
+}
+
+.vote-btn.downvote.active {
+  color: #6c63ff;
+}
+
+.vote-score {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #eee;
+}

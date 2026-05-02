@@ -1,0 +1,238 @@
+/* ===== PASTEL DESIGN SYSTEM ===== */
+
+/* --- Light Theme (default) --- */
+:root,
+[data-theme="light"] {
+  --bg:             #f9f5f0;
+  --bg-secondary:   #f3ede5;
+  --surface:        #ffffff;
+  --surface-raised: #ffffff;
+  --border:         #e8e0d8;
+  --border-light:   #f0ebe4;
+
+  --text-primary:   #3a3540;
+  --text-secondary: #8a8490;
+  --text-muted:     #b0a8b8;
+
+  --accent:         #d4829c;
+  --accent-light:   #f0c6d4;
+  --accent-soft:    #faf0f3;
+  --accent-hover:   #c77090;
+
+  --lavender:       #b8a9d4;
+  --lavender-soft:  #ede8f5;
+  --mint:           #a8d8c8;
+  --mint-soft:      #e8f5f0;
+  --peach:          #f0c4a8;
+  --peach-soft:     #faf0e8;
+
+  --upvote:         #d4829c;
+  --upvote-bg:      #faf0f3;
+  --downvote:       #9898d0;
+  --downvote-bg:    #ededf8;
+
+  --hover:          #f5f0eb;
+  --shadow-sm:      0 1px 3px rgba(58, 53, 64, 0.06);
+  --shadow-md:      0 4px 12px rgba(58, 53, 64, 0.08);
+  --shadow-lg:      0 8px 24px rgba(58, 53, 64, 0.1);
+
+  --radius-sm:      8px;
+  --radius-md:      12px;
+  --radius-lg:      16px;
+  --radius-full:    9999px;
+}
+
+/* --- Dark Theme --- */
+[data-theme="dark"] {
+  --bg:             #1a1721;
+  --bg-secondary:   #211e29;
+  --surface:        #262230;
+  --surface-raised: #2e2a38;
+  --border:         #3a3545;
+  --border-light:   #322e3c;
+
+  --text-primary:   #e8e4ef;
+  --text-secondary: #9e98a8;
+  --text-muted:     #6a6478;
+
+  --accent:         #e8a0b8;
+  --accent-light:   #5a3a48;
+  --accent-soft:    #352030;
+  --accent-hover:   #f0b0c8;
+
+  --lavender:       #b0a0d0;
+  --lavender-soft:  #2a2540;
+  --mint:           #88c8b0;
+  --mint-soft:      #1a3028;
+  --peach:          #e0b498;
+  --peach-soft:     #352820;
+
+  --upvote:         #e8a0b8;
+  --upvote-bg:      #352030;
+  --downvote:       #9898d0;
+  --downvote-bg:    #252040;
+
+  --hover:          #2e2a38;
+  --shadow-sm:      0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md:      0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-lg:      0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== RESET & BASE ===== */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.3s;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  flex: 1;
+}
+
+/* ===== TYPOGRAPHY ===== */
+
+h1, h2, h3 {
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* ===== BUTTONS ===== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--hover);
+  color: var(--text-primary);
+  border-color: var(--accent-light);
+}
+
+.btn-sm {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+/* ===== INPUTS ===== */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ===== UTILITY ===== */
+
+.loading,
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 3rem 1rem;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem 0.75rem;
+  }
+}
