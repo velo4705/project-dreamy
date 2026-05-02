@@ -29,6 +29,7 @@ A beautiful, lightweight social media frontend with a pastel aesthetic, light/da
 - **Styling**: CSS with CSS Variables for theming
 - **State Management**: React Context (Auth & Theme)
 - **HTTP Client**: Axios
+- **Database**: PostgreSQL (Locally Hosted)
 
 ## 📦 Installation & Setup
 
