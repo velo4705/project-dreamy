@@ -1,4 +1,4 @@
-const pool = require("../../server/db/pool");
+const { getPool } = require("./db");
 
 module.exports = async (req, res) => {
   try {
@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
       DB_HOST: process.env.DB_HOST || "NOT SET",
     });
 
+    const pool = getPool();
     const result = await pool.query("SELECT NOW(), version()");
     console.log("✅ Database connection successful");
 

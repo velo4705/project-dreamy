@@ -1,4 +1,4 @@
-const pool = require("../../server/db/pool");
+const { getPool } = require("./db");
 
 module.exports = async (req, res) => {
   try {
@@ -16,6 +16,8 @@ module.exports = async (req, res) => {
         orderBy = "p.created_at DESC";
         break;
     }
+
+    const pool = getPool();
 
     // Get posts with author info and vote counts
     const postsQuery = `
