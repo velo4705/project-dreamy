@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "client"
+    "client",
+    "server"
   ],
   "scripts": {
     "build": "npm run build --workspace=client",
     "dev": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
     "preview": "npm run preview --workspace=client"
   }
 }
