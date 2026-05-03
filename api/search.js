@@ -1,6 +1,10 @@
 const { getPool } = require("./db");
 
 module.exports = async (req, res) => {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
     const { q: query, page = 1, limit = 10 } = req.query;
 
@@ -11,7 +15,6 @@ module.exports = async (req, res) => {
     const offset = (page - 1) * limit;
     const pool = getPool();
 
-    // Use PostgreSQL full-text search
     const searchQuery = `
       SELECT
         p.id,
@@ -21,8 +24,7 @@ module.exports = async (req, res) => {
         p.updated_at,
         u.username as author,
         COALESCE(v.score, 0) as score,
-        COALESCE(c.comment_count, 0) as comment_count,
-        ts_rank_cd(p.search_vector, plainto_tsquery('english', $1)) as rank
+        COALESCE(c.comment_count, 0) as comment_count
       FROM posts p
       JOIN users u ON p.author_id = u.id
       LEFT JOIN (
@@ -35,20 +37,28 @@ module.exports = async (req, res) => {
         FROM comments
         GROUP BY post_id
       ) c ON p.id = c.post_id
-      WHERE p.search_vector @@ plainto_tsquery('english', $1)
-      ORDER BY rank DESC, p.created_at DESC
+      WHERE
+        p.title ILIKE $1 OR
+        p.body ILIKE $1 OR
+        u.username ILIKE $1
+      ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3
     `;
 
-    const postsResult = await pool.query(searchQuery, [query.trim(), limit, offset]);
+    const searchTerm = `%${query.trim()}%`;
+    const postsResult = await pool.query(searchQuery, [searchTerm, limit, offset]);
 
     // Get total count
     const countQuery = `
       SELECT COUNT(*) as total
-      FROM posts
-      WHERE search_vector @@ plainto_tsquery('english', $1)
+      FROM posts p
+      JOIN users u ON p.author_id = u.id
+      WHERE
+        p.title ILIKE $1 OR
+        p.body ILIKE $1 OR
+        u.username ILIKE $1
     `;
-    const countResult = await pool.query(countQuery, [query.trim()]);
+    const countResult = await pool.query(countQuery, [searchTerm]);
     const totalPosts = parseInt(countResult.rows[0].total);
     const totalPages = Math.ceil(totalPosts / limit);
 

@@ -1,4 +1,4 @@
-const { getPool } = require("../../db");
+const { getPool } = require("./db");
 const jwt = require("jsonwebtoken");
 
 module.exports = async (req, res) => {
@@ -7,7 +7,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Verify JWT token
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ error: "No token provided" });

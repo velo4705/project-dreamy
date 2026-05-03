@@ -2,8 +2,36 @@
   "outputDirectory": "dist",
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/api/auth-register",
+      "dest": "/api/auth-register"
+    },
+    {
+      "src": "/api/auth-login",
+      "dest": "/api/auth-login"
+    },
+    {
+      "src": "/api/posts",
+      "dest": "/api/posts"
+    },
+    {
+      "src": "/api/post",
+      "dest": "/api/post"
+    },
+    {
+      "src": "/api/post-comments",
+      "dest": "/api/post-comments"
+    },
+    {
+      "src": "/api/comment",
+      "dest": "/api/comment"
+    },
+    {
+      "src": "/api/search",
+      "dest": "/api/search"
+    },
+    {
+      "src": "/api/debug",
+      "dest": "/api/debug"
     },
     {
       "src": "/assets/(.*)",
