@@ -1,11 +1,6 @@
 const { getPool } = require("../../db");
-const jwt = require("jsonwebtoken");
 
 module.exports = async (req, res) => {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   try {
     const { id } = req.query;
 
@@ -15,48 +10,25 @@ module.exports = async (req, res) => {
 
     const pool = getPool();
 
-    // Get comments with nested structure
+    // Get all comments for this post, ordered by creation time
     const commentsQuery = `
-      WITH RECURSIVE comment_tree AS (
-        -- Base case: root comments
-        SELECT
-          c.id,
-          c.body,
-          c.author_id,
-          c.post_id,
-          c.parent_id,
-          c.created_at,
-          u.username as author,
-          0 as depth,
-          ARRAY[c.id] as path
-        FROM comments c
-        JOIN users u ON c.author_id = u.id
-        WHERE c.post_id = $1 AND c.parent_id IS NULL
-
-        UNION ALL
-
-        -- Recursive case: child comments
-        SELECT
-          c.id,
-          c.body,
-          c.author_id,
-          c.post_id,
-          c.parent_id,
-          c.created_at,
-          u.username as author,
-          ct.depth + 1,
-          ct.path || c.id
-        FROM comments c
-        JOIN users u ON c.author_id = u.id
-        JOIN comment_tree ct ON c.parent_id = ct.id
-      )
-      SELECT * FROM comment_tree
-      ORDER BY path, created_at
+      SELECT
+        c.id,
+        c.body,
+        c.author_id,
+        c.post_id,
+        c.parent_id,
+        c.created_at,
+        u.username as author
+      FROM comments c
+      JOIN users u ON c.author_id = u.id
+      WHERE c.post_id = $1
+      ORDER BY c.created_at ASC
     `;
 
     const result = await pool.query(commentsQuery, [id]);
 
-    // Transform flat results into nested structure
+    // Group comments by parent_id
     const commentsMap = {};
     const rootComments = [];
 
@@ -67,16 +39,19 @@ module.exports = async (req, res) => {
         author: comment.author,
         author_id: comment.author_id,
         created_at: comment.created_at,
+        parent_id: comment.parent_id,
         children: []
       };
 
       commentsMap[comment.id] = commentObj;
 
       if (comment.parent_id) {
+        // This is a reply
         if (commentsMap[comment.parent_id]) {
           commentsMap[comment.parent_id].children.push(commentObj);
         }
       } else {
+        // This is a root comment
         rootComments.push(commentObj);
       }
     });
