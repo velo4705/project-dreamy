@@ -2,9 +2,12 @@
   "name": "dbms-project",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "client"
+  ],
   "scripts": {
-    "build": "cd client && npm run build",
-    "dev": "cd client && npm run dev",
-    "preview": "cd client && npm run preview"
+    "build": "npm run build --workspace=client",
+    "dev": "npm run dev --workspace=client",
+    "preview": "npm run preview --workspace=client"
   }
 }
