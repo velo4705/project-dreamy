@@ -1,8 +1,3 @@
-import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import "./CommentSection.css";
-
 export default function CommentSection({ comments, onAdd, onDelete }) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -35,6 +30,7 @@ export default function CommentSection({ comments, onAdd, onDelete }) {
   };
 
   const buildTree = (comments) => {
+    if (!comments || !Array.isArray(comments)) return [];
     const map = {};
     const roots = [];
     comments.forEach((c) => (map[c.id] = { ...c, children: [] }));
@@ -113,15 +109,16 @@ export default function CommentSection({ comments, onAdd, onDelete }) {
           </div>
         </div>
       )}
-      {comment.children.map((child) => renderComment(child, depth + 1))}
+      {comment.children && comment.children.map((child) => renderComment(child, depth + 1))}
     </div>
   );
 
-  const tree = buildTree(comments);
+  const safeComments = comments || [];
+  const tree = buildTree(safeComments);
 
   return (
     <div className="comment-section">
-      <h3>{comments.length} Comment{comments.length !== 1 ? "s" : ""}</h3>
+      <h3>{safeComments.length} Comment{safeComments.length !== 1 ? "s" : ""}</h3>
 
       <form className="comment-form" onSubmit={handleSubmit}>
         <textarea
