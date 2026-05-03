@@ -19,11 +19,15 @@ export default function Search() {
     api
       .get(`/posts/search?q=${encodeURIComponent(query)}&page=${page}&limit=10`)
       .then((res) => {
-        setPosts(res.data.posts);
-        setTotalPages(res.data.totalPages);
-        setTotal(res.data.total);
+        setPosts(Array.isArray(res.data.posts) ? res.data.posts : []);
+        setTotalPages(res.data.totalPages || 1);
+        setTotal(res.data.total || 0);
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error("Search failed:", err);
+        setPosts([]);
+        setTotal(0);
+      })
       .finally(() => setLoading(false));
   }, [query, page]);
 

@@ -21,11 +21,15 @@ export default function PostDetail() {
     Promise.all([api.get(`/posts/${id}`), api.get(`/posts/${id}/comments`)])
       .then(([postRes, commentsRes]) => {
         setPost(postRes.data);
-        setComments(commentsRes.data);
+        setComments(Array.isArray(commentsRes.data) ? commentsRes.data : []);
         setEditTitle(postRes.data.title);
         setEditBody(postRes.data.body || "");
       })
-      .catch(() => setPost(null))
+      .catch((err) => {
+        console.error("Failed to load post:", err);
+        setPost(null);
+        setComments([]);
+      })
       .finally(() => setLoading(false));
   }, [id]);
 

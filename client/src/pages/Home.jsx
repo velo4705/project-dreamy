@@ -18,8 +18,8 @@ export default function Home() {
     api
       .get(`/posts?sort=${sort}&page=${page}&limit=10`)
       .then((res) => {
-        setPosts(res.data.posts);
-        setTotalPages(res.data.totalPages);
+        setPosts(Array.isArray(res.data.posts) ? res.data.posts : []);
+        setTotalPages(res.data.totalPages || 1);
       })
       .catch((err) => {
         console.error("Failed to load posts:", err);

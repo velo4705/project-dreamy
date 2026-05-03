@@ -14,12 +14,14 @@ export default function UserProfile() {
     api
       .get(`/posts?limit=50`)
       .then((res) => {
-        const userPosts = res.data.posts.filter(
-          (p) => p.author === username
-        );
+        const allPosts = Array.isArray(res.data.posts) ? res.data.posts : [];
+        const userPosts = allPosts.filter((p) => p.author === username);
         setPosts(userPosts);
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error("Failed to load user posts:", err);
+        setPosts([]);
+      })
       .finally(() => setLoading(false));
   }, [username]);
 
