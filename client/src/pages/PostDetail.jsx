@@ -1,11 +1,3 @@
-import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import api from "../api";
-import VoteButtons from "../components/VoteButtons";
-import CommentSection from "../components/CommentSection";
-import "./PostDetail.css";
-
 export default function PostDetail() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -18,10 +10,13 @@ export default function PostDetail() {
   const [editBody, setEditBody] = useState("");
 
   useEffect(() => {
-    Promise.all([api.get(`/posts/${id}`), api.get(`/posts/${id}/comments`)])
+    Promise.all([
+      api.get(`/post?id=${id}`),
+      api.get(`/post-comments?id=${id}`)
+    ])
       .then(([postRes, commentsRes]) => {
         setPost(postRes.data);
-        setComments(Array.isArray(commentsRes.data) ? commentsRes.data : []);
+        setComments(commentsRes.data);
         setEditTitle(postRes.data.title);
         setEditBody(postRes.data.body || "");
       })
@@ -35,7 +30,7 @@ export default function PostDetail() {
 
   const handleVote = async (value) => {
     try {
-      const res = await api.post(`/posts/${id}/vote`, { value });
+      const res = await api.post(`/post?id=${id}`, { value });
       setPost((p) => ({
         ...p,
         score: res.data.score,
@@ -48,7 +43,7 @@ export default function PostDetail() {
 
   const handleAddComment = async (body, parentId) => {
     try {
-      const res = await api.post(`/posts/${id}/comments`, {
+      const res = await api.post(`/post-comments?id=${id}`, {
         body,
         parent_id: parentId,
       });
@@ -64,7 +59,7 @@ export default function PostDetail() {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await api.delete(`/comments/${commentId}`);
+      await api.delete(`/comment?id=${commentId}`);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
       setPost((p) => ({
         ...p,

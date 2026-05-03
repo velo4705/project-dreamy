@@ -27,7 +27,7 @@ export default function UserProfile() {
 
   const handleVote = async (postId, value) => {
     try {
-      const res = await api.post(`/posts/${postId}/vote`, { value });
+      const res = await api.post(`/post?id=${postId}`, { value });
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId

@@ -18,7 +18,7 @@ export default function Home() {
     api
       .get(`/posts?sort=${sort}&page=${page}&limit=10`)
       .then((res) => {
-        setPosts(Array.isArray(res.data.posts) ? res.data.posts : []);
+        setPosts(res.data.posts || []);
         setTotalPages(res.data.totalPages || 1);
       })
       .catch((err) => {
@@ -32,7 +32,7 @@ export default function Home() {
 
   const handleVote = async (postId, value) => {
     try {
-      const res = await api.post(`/posts/${postId}/vote`, { value });
+      const res = await api.post(`/post?id=${postId}`, { value });
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
