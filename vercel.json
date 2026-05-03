@@ -2,11 +2,11 @@
   "outputDirectory": "dist",
   "routes": [
     {
-      "src": "/api/auth-register",
+      "src": "/api/auth/register",
       "dest": "/api/auth-register"
     },
     {
-      "src": "/api/auth-login",
+      "src": "/api/auth/login",
       "dest": "/api/auth-login"
     },
     {
