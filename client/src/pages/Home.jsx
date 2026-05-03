@@ -1,3 +1,9 @@
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import api from "../api";
+import PostCard from "../components/PostCard";
+import "./Home.css";
+
 export default function Home() {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
