@@ -1,25 +1,26 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import api from "../api";
-import PostCard from "../components/PostCard";
-import "./Home.css";
-
 export default function Home() {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [sort, setSort] = useState("new");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
     api
       .get(`/posts?sort=${sort}&page=${page}&limit=10`)
       .then((res) => {
         setPosts(res.data.posts);
         setTotalPages(res.data.totalPages);
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error("Failed to load posts:", err);
+        setError("Unable to connect to server. This is a demo deployment.");
+        setPosts([]);
+        setTotalPages(1);
+      })
       .finally(() => setLoading(false));
   }, [sort, page]);
 
@@ -65,7 +66,14 @@ export default function Home() {
       </div>
 
       {loading ? (
-        <p className="loading">Loading...</p>
+        <p className="loading">Loading posts...</p>
+      ) : error ? (
+        <div className="empty">
+          <h3>Welcome to Dreamy! 🌸</h3>
+          <p>This is a demo deployment of the frontend only.</p>
+          <p>The backend server is not connected, so posts cannot be loaded or created.</p>
+          <p>Check out the beautiful pastel design and theme toggle!</p>
+        </div>
       ) : posts.length === 0 ? (
         <p className="empty">No posts yet. Be the first to post!</p>
       ) : (

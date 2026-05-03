@@ -13,7 +13,8 @@ export function AuthProvider({ children }) {
       api
         .get("/auth/me")
         .then((res) => setUser(res.data))
-        .catch(() => {
+        .catch((err) => {
+          console.error("Auth check failed:", err);
           localStorage.removeItem("token");
         })
         .finally(() => setLoading(false));
@@ -23,17 +24,27 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (username, password) => {
-    const res = await api.post("/auth/login", { username, password });
-    localStorage.setItem("token", res.data.token);
-    setUser(res.data.user);
-    return res.data;
+    try {
+      const res = await api.post("/auth/login", { username, password });
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
+      return res.data;
+    } catch (err) {
+      console.error("Login failed:", err);
+      throw err;
+    }
   };
 
   const register = async (username, email, password) => {
-    const res = await api.post("/auth/register", { username, email, password });
-    localStorage.setItem("token", res.data.token);
-    setUser(res.data.user);
-    return res.data;
+    try {
+      const res = await api.post("/auth/register", { username, email, password });
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
+      return res.data;
+    } catch (err) {
+      console.error("Registration failed:", err);
+      throw err;
+    }
   };
 
   const logout = () => {
