@@ -1,26 +1,7 @@
-const { getPool } = require("./db");
-
-module.exports = async (req, res) => {
-  try {
-    const { page = 1, limit = 10, sort = "new" } = req.query;
-
-    const offset = (page - 1) * limit;
-    let orderBy;
-
-    switch (sort) {
-      case "top":
-        orderBy = "p.score DESC";
-        break;
-      case "new":
-      default:
-        orderBy = "p.created_at DESC";
-        break;
-    }
-
     const pool = getPool();
 
-    // Get posts with author info and vote counts
-    const postsQuery = `
+    // Base query
+    let postsQuery = `
       SELECT
         p.id,
         p.title,
@@ -42,29 +23,15 @@ module.exports = async (req, res) => {
         FROM comments
         GROUP BY post_id
       ) c ON p.id = c.post_id
-      ORDER BY ${orderBy}
-      LIMIT $1 OFFSET $2
     `;
 
+    // Add sorting
+    if (sort === "top") {
+      postsQuery += " ORDER BY COALESCE(v.score, 0) DESC, p.created_at DESC";
+    } else {
+      postsQuery += " ORDER BY p.created_at DESC";
+    }
+
+    postsQuery += " LIMIT $1 OFFSET $2";
+
     const postsResult = await pool.query(postsQuery, [limit, offset]);
-
-    // Get total count for pagination
-    const countResult = await pool.query("SELECT COUNT(*) as total FROM posts");
-    const totalPosts = parseInt(countResult.rows[0].total);
-    const totalPages = Math.ceil(totalPosts / limit);
-
-    res.status(200).json({
-      posts: postsResult.rows,
-      totalPages,
-      currentPage: parseInt(page),
-      totalPosts
-    });
-
-  } catch (err) {
-    console.error("Posts API error:", err);
-    res.status(500).json({
-      error: "Failed to fetch posts",
-      details: err.message
-    });
-  }
-};
