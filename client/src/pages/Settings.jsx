@@ -254,7 +254,7 @@ export default function Settings() {
           <div className="credit-item"><strong>Backend:</strong> Node.js, Express, Supabase</div>
           <div className="credit-item">
             <strong>Source Code:</strong> 
-            <a href="https://github.com/velo4705/dbms-project" target="_blank" rel="noopener noreferrer" className="repo-link">
+            <a href="https://github.com/velo4705/project-dreamy" target="_blank" rel="noopener noreferrer" className="repo-link">
               <ExternalLink size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
               GitHub Repository 🚀
             </a>
