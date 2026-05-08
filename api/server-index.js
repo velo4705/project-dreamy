@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Import Routers
+// Import Routers (ONLY files that exist!)
 const authRouter = require("./routes/auth");
 const postsRouter = require("./routes/posts");
 const commentsRouter = require("./routes/comments");
@@ -17,8 +17,6 @@ const usersRouter = require("./routes/users");
 const notificationsRouter = require("./routes/notifications");
 const messagesRouter = require("./routes/messages");
 const friendsRouter = require("./routes/friends");
-const votesRouter = require("./routes/votes");
-const searchRouter = require("./routes/search");
 
 // --- API Route Mounting ---
 app.use("/api/auth", authRouter);
@@ -28,8 +26,6 @@ app.use("/api/users", usersRouter);
 app.use("/api/notifications", notificationsRouter);
 app.use("/api/messages", messagesRouter);
 app.use("/api/friends", friendsRouter);
-app.use("/api/votes", votesRouter);
-app.use("/api/search", searchRouter);
 
 // Standard Debug Endpoint
 app.get("/api/debug", async (req, res) => {
