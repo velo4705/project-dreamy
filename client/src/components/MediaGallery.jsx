@@ -12,6 +12,8 @@ export default function MediaGallery({ media, mediaUrl, mediaType }) {
 
   if (items.length === 0) return null;
 
+  const isGif = (url) => url?.toLowerCase().endsWith(".gif");
+
   const handleScroll = () => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
@@ -36,32 +38,41 @@ export default function MediaGallery({ media, mediaUrl, mediaType }) {
         ref={scrollRef} 
         onScroll={handleScroll}
       >
-        {items.map((item, index) => (
-          <div key={index} className="media-slide">
-            {/* The Ambient/Blurred Background Layer */}
-            <div className="ambient-bg">
-              {item.type === "video" ? (
-                <video src={item.url} muted />
-              ) : (
-                <img src={item.url} alt="" />
+        {items.map((item, index) => {
+          const itemIsGif = isGif(item.url);
+          return (
+            <div key={index} className={`media-slide ${itemIsGif ? 'is-gif' : ''}`}>
+              {/* Ambient Background for everything except GIFs (which fill the frame anyway) */}
+              {!itemIsGif && (
+                <div className="ambient-bg">
+                  {item.type === "video" ? (
+                    <video src={item.url} muted />
+                  ) : (
+                    <img src={item.url} alt="" />
+                  )}
+                </div>
               )}
-            </div>
 
-            {/* The Main Content Layer (Uncropped) */}
-            <div className="media-content-wrapper">
-              {item.type === "video" ? (
-                <video 
-                  src={item.url} 
-                  controls 
-                  preload="metadata"
-                  className="carousel-video"
-                />
-              ) : (
-                <img src={item.url} alt="" loading="lazy" />
-              )}
+              <div className="media-content-wrapper">
+                {item.type === "video" ? (
+                  <video 
+                    src={item.url} 
+                    controls 
+                    preload="metadata"
+                    className="carousel-video"
+                  />
+                ) : (
+                  <img 
+                    src={item.url} 
+                    alt="" 
+                    loading="lazy" 
+                    className={itemIsGif ? 'gif-content' : 'image-content'}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {items.length > 1 && (
