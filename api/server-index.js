@@ -38,15 +38,21 @@ app.get("/api/debug", async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Database connection failed:", err);
-    res.status(500).json({
+    const dbUrl = process.env.DATABASE_URL || "";
+    const hostMatch = dbUrl.match(/@([^:/]+)/);
+    const host = hostMatch ? hostMatch[1] : "NOT FOUND";
+
+    res.json({
       status: "error",
       message: "Database connection failed",
       error: err.message,
+      debug: {
+        detected_host: host,
+        url_length: dbUrl.length,
+        starts_with_postgres: dbUrl.startsWith("postgresql://")
+      },
       env_vars: {
         database_url: !!process.env.DATABASE_URL,
-        db_user: !!process.env.DB_USER,
-        db_host: !!process.env.DB_HOST,
-        db_name: !!process.env.DB_NAME,
       }
     });
   }
