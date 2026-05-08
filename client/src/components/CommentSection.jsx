@@ -62,10 +62,10 @@ export default function CommentSection({ comments, onAdd, onDelete }) {
       style={{ marginLeft: depth * 24 }}
     >
       <div className="comment-meta">
-        <span className="comment-author">{comment.author}</span>
-        <span className="comment-time">{timeAgo(comment.created_at)}</span>
+        <span className="comment-author">{comment?.author}</span>
+        <span className="comment-time">{comment?.created_at ? timeAgo(comment.created_at) : ""}</span>
       </div>
-      <p className="comment-body">{comment.body}</p>
+      <p className="comment-body">{comment?.body}</p>
       <div className="comment-actions">
         <button
           className="comment-action-btn"

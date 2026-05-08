@@ -155,14 +155,14 @@ export default function PostDetail() {
             </form>
           ) : (
             <>
-              <h1 className="post-detail-title">{post.title}</h1>
+              <h1 className="post-detail-title">{post?.title}</h1>
               <div className="post-detail-meta">
                 Posted by{" "}
-                <Link to={`/user/${post.author}`}>{post.author}</Link>{" "}
-                {timeAgo(post.created_at)}
-                {post.updated_at !== post.created_at && " (edited)"}
+                <Link to={`/user/${post?.author}`}>{post?.author}</Link>{" "}
+                {post?.created_at ? timeAgo(post.created_at) : ""}
+                {post?.updated_at !== post?.created_at && " (edited)"}
               </div>
-              {post.body && <p className="post-detail-body">{post.body}</p>}
+              {post?.body && <p className="post-detail-body">{post.body}</p>}
               {isOwner && (
                 <div className="post-owner-actions">
                   <button
