@@ -32,7 +32,7 @@ export default function Home() {
 
   const handleVote = async (postId, value) => {
     try {
-      const res = await api.post(`/post?id=${postId}`, { value });
+      const res = await api.post(`/posts/${postId}/vote`, { value });
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId

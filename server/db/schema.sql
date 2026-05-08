@@ -4,7 +4,7 @@
 -- ============================================
 -- USERS TABLE
 -- ============================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id          SERIAL PRIMARY KEY,
     username    VARCHAR(50)  UNIQUE NOT NULL,
     email       VARCHAR(255) UNIQUE NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE users (
 -- ============================================
 -- POSTS TABLE
 -- ============================================
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
     id          SERIAL PRIMARY KEY,
     title       VARCHAR(300) NOT NULL,
     body        TEXT,
@@ -31,7 +31,7 @@ CREATE INDEX idx_posts_created ON posts(created_at DESC);
 -- VOTES TABLE
 -- Each user can vote once per post: +1 (upvote) or -1 (downvote)
 -- ============================================
-CREATE TABLE votes (
+CREATE TABLE IF NOT EXISTS votes (
     id          SERIAL PRIMARY KEY,
     user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     post_id     INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,

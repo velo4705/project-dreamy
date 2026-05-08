@@ -11,8 +11,8 @@ export default function PostDetail() {
 
   useEffect(() => {
     Promise.all([
-      api.get(`/post?id=${id}`),
-      api.get(`/post-comments?id=${id}`)
+      api.get(`/posts/${id}`),
+      api.get(`/posts/${id}/comments`)
     ])
       .then(([postRes, commentsRes]) => {
         setPost(postRes.data);
@@ -30,7 +30,7 @@ export default function PostDetail() {
 
   const handleVote = async (value) => {
     try {
-      const res = await api.post(`/post?id=${id}`, { value });
+      const res = await api.post(`/posts/${id}/vote`, { value });
       setPost((p) => ({
         ...p,
         score: res.data.score,
@@ -43,7 +43,7 @@ export default function PostDetail() {
 
   const handleAddComment = async (body, parentId) => {
     try {
-      const res = await api.post(`/post-comments?id=${id}`, {
+      const res = await api.post(`/posts/${id}/comments`, {
         body,
         parent_id: parentId,
       });
@@ -59,7 +59,7 @@ export default function PostDetail() {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await api.delete(`/comment?id=${commentId}`);
+      await api.delete(`/comments/${commentId}`);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
       setPost((p) => ({
         ...p,

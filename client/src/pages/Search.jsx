@@ -17,7 +17,7 @@ export default function Search() {
     if (!query) return;
     setLoading(true);
     api
-      .get(`/search?q=${encodeURIComponent(query)}&page=${page}&limit=10`)
+      .get(`/posts/search?q=${encodeURIComponent(query)}&page=${page}&limit=10`)
       .then((res) => {
         setPosts(res.data.posts || []);
         setTotalPages(res.data.totalPages || 1);
@@ -37,7 +37,7 @@ export default function Search() {
 
   const handleVote = async (postId, value) => {
     try {
-      const res = await api.post(`/post?id=${postId}`, { value });
+      const res = await api.post(`/posts/${postId}/vote`, { value });
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
