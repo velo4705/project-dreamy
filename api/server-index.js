@@ -18,10 +18,22 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
-/*
 // Import Routers
-...
-*/
+const authRouter = require("./routes/auth");
+const postsRouter = require("./routes/posts");
+
+// --- API Route Mounting ---
+app.use("/api/auth", authRouter);
+app.use("/api/posts", postsRouter);
+
+app.get("/api/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.json({ message: "Database is connected!", time: result.rows[0].now });
+  } catch (err) {
+    res.status(500).json({ error: "Database failed: " + err.message });
+  }
+});
 
 module.exports = app;
 
