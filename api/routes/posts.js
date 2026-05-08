@@ -9,7 +9,11 @@ const router = express.Router();
 router.get("/search", async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q) return res.json([]);
+    if (!q) return res.json({ posts: [], total: 0, totalPages: 0 });
+
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+    const offset = (page - 1) * limit;
 
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at,
@@ -17,10 +21,22 @@ router.get("/search", async (req, res) => {
        FROM posts p
        LEFT JOIN users u ON p.author_id = u.id
        WHERE p.title ILIKE $1 OR p.body ILIKE $1
-       ORDER BY p.created_at DESC LIMIT 20`,
+       ORDER BY p.created_at DESC 
+       LIMIT $2 OFFSET $3`,
+      [`%${q}%`, limit, offset]
+    );
+
+    const countRes = await pool.query(
+      "SELECT COUNT(*)::int as total FROM posts WHERE title ILIKE $1 OR body ILIKE $1",
       [`%${q}%`]
     );
-    res.json(result.rows);
+    const total = countRes.rows[0].total;
+
+    res.json({ 
+      posts: result.rows,
+      total: total,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -139,7 +155,6 @@ router.post("/:id/comments", auth, async (req, res) => {
       [id, author_id, body, parent_id]
     );
 
-    // Fetch author info for the new comment
     const commentWithAuthor = await pool.query(
       `SELECT c.*, u.username AS author, u.avatar_url AS author_avatar 
        FROM comments c JOIN users u ON c.author_id = u.id WHERE c.id = $1`,

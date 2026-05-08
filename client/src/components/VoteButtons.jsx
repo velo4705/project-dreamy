@@ -12,7 +12,9 @@ export default function VoteButtons({ score, userVote, onVote }) {
       navigate("/login");
       return;
     }
-    onVote(value);
+    // Toggle: if same value is clicked, send 0 to remove vote
+    const newValue = userVote === value ? 0 : value;
+    onVote(newValue);
   };
 
   return (
