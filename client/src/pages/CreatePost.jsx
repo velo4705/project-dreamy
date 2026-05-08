@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api";
 import { supabase } from "../supabase";
-import { Image, Video, X, Plus } from "lucide-react";
+import { Image, Plus, X } from "lucide-react";
 import "./CreatePost.css";
 
 export default function CreatePost() {
@@ -14,8 +14,6 @@ export default function CreatePost() {
   const [parentId, setParentId] = useState("");
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
-  
-  // Changed to an array to support multiple media items
   const [mediaItems, setMediaItems] = useState([]);
   const fileInputRef = useRef();
 
@@ -38,7 +36,7 @@ export default function CreatePost() {
       const newItems = [];
       for (const file of files) {
         const isVideo = file.type.startsWith("video/");
-        const limit = isVideo ? 15 : 5; // MB
+        const limit = isVideo ? 15 : 5;
 
         if (file.size > limit * 1024 * 1024) {
           alert(`File ${file.name} too large! Limit is ${limit}MB.`);
@@ -56,17 +54,15 @@ export default function CreatePost() {
           .from("media")
           .getPublicUrl(data.path);
 
-        newItems.push({
-          url: publicUrl,
-          type: isVideo ? "video" : "image"
-        });
+        newItems.push({ url: publicUrl, type: isVideo ? "video" : "image" });
       }
       setMediaItems(prev => [...prev, ...newItems]);
     } catch (err) {
       console.error("Upload failed:", err);
-      alert("One or more uploads failed.");
+      alert("One or more uploads failed: " + err.message);
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -85,12 +81,11 @@ export default function CreatePost() {
     }
 
     try {
-      const res = await api.post("/posts", { 
-        title, 
-        body, 
+      const res = await api.post("/posts", {
+        title,
+        body,
         parent_post_id: finalParentId ? parseInt(finalParentId) : null,
-        media: mediaItems, // Send the whole array
-        // Fallback for old single-media logic
+        media: mediaItems,
         media_url: mediaItems[0]?.url || "",
         media_type: mediaItems[0]?.type || ""
       });
@@ -105,6 +100,7 @@ export default function CreatePost() {
       <h1>Create a Post</h1>
       <form onSubmit={handleSubmit} className="create-post-form glass-panel">
         {error && <div className="auth-error">{error}</div>}
+
         <input
           type="text"
           placeholder="Title"
@@ -112,44 +108,52 @@ export default function CreatePost() {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-        
-        <div className="media-upload-section">
-          <div className="media-grid">
-            {mediaItems.map((item, index) => (
-              <div key={index} className="media-preview-item">
-                <button type="button" className="remove-media" onClick={() => removeMedia(index)}>
-                  <X size={14} />
-                </button>
-                {item.type === "video" ? (
-                  <video src={item.url} muted />
-                ) : (
-                  <img src={item.url} alt="" />
-                )}
-              </div>
-            ))}
-            
-            <button 
-              type="button" 
-              className="add-media-btn" 
-              onClick={() => fileInputRef.current.click()}
-              disabled={uploading}
-            >
-              {uploading ? (
-                <div className="spinner-small"></div>
-              ) : (
-                <Plus size={24} />
-              )}
-              <span>{mediaItems.length > 0 ? "Add More" : "Add Media"}</span>
-            </button>
-          </div>
 
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            style={{ display: "none" }} 
+        {/* Media Upload Section */}
+        <div className="media-upload-section">
+          {/* Uploaded media grid — shown above the button */}
+          {mediaItems.length > 0 && (
+            <div className="media-previews-grid">
+              {mediaItems.map((item, index) => (
+                <div key={index} className="media-preview-item">
+                  <button
+                    type="button"
+                    className="remove-media"
+                    onClick={() => removeMedia(index)}
+                  >
+                    <X size={13} />
+                  </button>
+                  {item.type === "video" ? (
+                    <video src={item.url} muted />
+                  ) : (
+                    <img src={item.url} alt="" />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add Media / Add More button — always at the bottom, full width when empty */}
+          <button
+            type="button"
+            className={`add-media-btn ${mediaItems.length > 0 ? "add-more" : "add-initial"}`}
+            onClick={() => fileInputRef.current.click()}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <><div className="spinner-small" /><span>Uploading...</span></>
+            ) : (
+              <><Image size={20} /><span>{mediaItems.length > 0 ? "Add More" : "Add Image / Video / GIF"}</span></>
+            )}
+          </button>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
             accept="image/*,video/*"
-            multiple // Allow selecting multiple at once!
+            multiple
           />
         </div>
 
@@ -159,12 +163,14 @@ export default function CreatePost() {
           onChange={(e) => setBody(e.target.value)}
           rows={6}
         />
+
         <input
           type="text"
           placeholder="Replying to another post? (ID or Link)"
           value={parentId}
           onChange={(e) => setParentId(e.target.value)}
         />
+
         <button type="submit" className="btn btn-primary" disabled={uploading}>
           Post
         </button>
