@@ -47,6 +47,18 @@
   border-radius: var(--radius-sm);
 }
 
+.repo-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 0.25rem;
+  transition: opacity 0.2s;
+}
+
+.repo-link:hover {
+  opacity: 0.8;
+}
+
 .theme-customizer {
   display: flex;
   flex-direction: column;

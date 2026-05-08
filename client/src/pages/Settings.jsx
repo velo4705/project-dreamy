@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import api from "../api";
 import { supabase } from "../supabase";
-import { Camera, Upload } from "lucide-react";
+import { Camera, Upload, Github } from "lucide-react";
 import "./Settings.css";
 
 // Reusable image upload box component
@@ -249,8 +249,16 @@ export default function Settings() {
         <h2>Credits</h2>
         <p>Developed with ❤️ as a DBMS Course Project.</p>
         <div className="credits-list">
+          <div className="credit-item"><strong>Developers:</strong> Built by a team of two talented dreamers</div>
           <div className="credit-item"><strong>Frontend:</strong> React 19, Vite, Outfit Font</div>
           <div className="credit-item"><strong>Backend:</strong> Node.js, Express, Supabase</div>
+          <div className="credit-item">
+            <strong>Source Code:</strong> 
+            <a href="https://github.com/velo4705/dbms-project" target="_blank" rel="noopener noreferrer" className="repo-link">
+              <Github size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+              GitHub Repository 🚀
+            </a>
+          </div>
         </div>
       </section>
 

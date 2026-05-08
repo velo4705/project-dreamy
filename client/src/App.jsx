@@ -12,12 +12,14 @@ import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
 import Messages from "./pages/Messages";
 import Friends from "./pages/Friends";
+import StarryBackground from "./components/StarryBackground";
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
+          <StarryBackground />
           <Navbar />
           <main className="container">
             <Routes>

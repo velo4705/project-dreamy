@@ -92,8 +92,9 @@ export default function UserProfile() {
         style={{ backgroundImage: profile.banner_url ? `url(${profile.banner_url})` : 'linear-gradient(135deg, var(--accent-light), var(--lavender-soft))' }}
       >
         {isOwner && (
-          <Link to="/settings" className="edit-profile-btn btn glass-panel">
-            Edit Profile
+          <Link to="/settings" className="edit-profile-btn glass-pill">
+            <Settings size={16} />
+            <span>Edit Profile</span>
           </Link>
         )}
       </div>
