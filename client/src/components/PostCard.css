@@ -170,3 +170,9 @@
   background: var(--accent-soft);
   color: var(--accent);
 }
+
+.delete-action:hover {
+  background: rgba(255, 68, 68, 0.1) !important;
+  color: #ff4444 !important;
+  border-color: rgba(255, 68, 68, 0.2) !important;
+}

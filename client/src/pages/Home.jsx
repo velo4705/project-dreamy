@@ -94,6 +94,9 @@ export default function Home() {
                 key={post.id}
                 post={post}
                 onVote={(value) => handleVote(post.id, value)}
+                onDelete={(deletedId) => {
+                  setPosts(prev => prev.filter(p => p.id !== deletedId));
+                }}
               />
             ))}
           </div>

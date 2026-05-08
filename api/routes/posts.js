@@ -219,4 +219,31 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
+// DELETE /api/posts/:id - Delete a post
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Check if post exists and user is the author
+    const postRes = await pool.query("SELECT author_id FROM posts WHERE id = $1", [id]);
+    if (postRes.rows.length === 0) return res.status(404).json({ error: "Post not found" });
+    
+    if (postRes.rows[0].author_id !== userId) {
+      return res.status(403).json({ error: "You are not authorized to delete this post." });
+    }
+
+    // Delete votes and comments first (if no cascades exist)
+    await pool.query("DELETE FROM votes WHERE post_id = $1", [id]);
+    await pool.query("DELETE FROM comments WHERE post_id = $1", [id]);
+    
+    // Finally delete the post
+    await pool.query("DELETE FROM posts WHERE id = $1", [id]);
+
+    res.json({ message: "Post deleted successfully! ✨" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
