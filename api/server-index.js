@@ -70,8 +70,8 @@ app.get("/api/health", async (req, res) => {
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
-app.use("/api/posts", require("./routes/posts"));
 app.use("/api", require("./routes/comments"));
+app.use("/api/posts", require("./routes/posts"));
 
 module.exports = app;
 if (require.main === module) {
