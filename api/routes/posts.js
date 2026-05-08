@@ -133,30 +133,41 @@ router.get("/", async (req, res) => {
       ? "score DESC, p.created_at DESC"
       : "p.created_at DESC";
 
-    const result = await pool.query(
-      `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
-              u.username AS author,
-              u.avatar_url AS author_avatar,
-              p.media_url,
-              p.media_type,
-              p.parent_post_id,
-              pp.title AS parent_title,
-              (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
-              (SELECT COUNT(*)::int FROM comments WHERE post_id = p.id) AS comment_count,
-              COALESCE(
-                (SELECT value FROM votes WHERE user_id = $1 AND post_id = p.id),
-                0
-              )::int AS user_vote
-       FROM posts p
-       JOIN users u ON p.author_id = u.id
-       LEFT JOIN posts pp ON p.parent_post_id = pp.id
-       ORDER BY ${orderBy}
-       LIMIT $2 OFFSET $3`,
-      [userId, limit, offset]
-    );
+    let result;
+    try {
+      result = await pool.query(
+        `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
+                u.username AS author,
+                u.avatar_url AS author_avatar,
+                p.media_url,
+                p.media_type,
+                p.parent_post_id,
+                pp.title AS parent_title,
+                (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
+                (SELECT COUNT(*)::int FROM comments WHERE post_id = p.id) AS comment_count,
+                COALESCE(
+                  (SELECT value FROM votes WHERE user_id = $1 AND post_id = p.id),
+                  0
+                )::int AS user_vote
+         FROM posts p
+         JOIN users u ON p.author_id = u.id
+         LEFT JOIN posts pp ON p.parent_post_id = pp.id
+         ORDER BY ${orderBy}
+         LIMIT $2 OFFSET $3`,
+        [userId, limit, offset]
+      );
+    } catch (dbErr) {
+      console.error("DATABASE ERROR in GET /posts:", dbErr.message);
+      return res.status(500).json({ error: dbErr.message });
+    }
 
     // Get total count for pagination
-    const countResult = await pool.query("SELECT COUNT(*)::int AS total FROM posts");
+    let countResult;
+    try {
+      countResult = await pool.query("SELECT COUNT(*)::int AS total FROM posts");
+    } catch (e) {
+      return res.status(500).json({ error: "Count failed: " + e.message });
+    }
     const total = countResult.rows[0].total;
 
     res.json({
