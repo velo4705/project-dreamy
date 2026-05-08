@@ -1,3 +1,8 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "./CommentSection.css";
+
 export default function CommentSection({ comments, onAdd, onDelete }) {
   const { user } = useAuth();
   const navigate = useNavigate();
