@@ -29,11 +29,11 @@ export default function PostCard({ post, onVote }) {
         <Link to={`/post/${post.id}`} className="post-card-title">
           {post.title}
         </Link>
-        
-        <MediaGallery 
-          media={post.media} 
-          mediaUrl={post.media_url} 
-          mediaType={post.media_type} 
+
+        <MediaGallery
+          media={post.media}
+          mediaUrl={post.media_url}
+          mediaType={post.media_type}
         />
 
         {post.parent_post_id && (
@@ -44,28 +44,37 @@ export default function PostCard({ post, onVote }) {
         )}
 
         <div className="post-card-meta">
-          {post.author_avatar && <img src={post.author_avatar} className="mini-avatar" alt="" />}
-          <span>Posted by <Link to={`/user/${post.author}`} className="author-link">{post.author}</Link></span>
-          <span className="dot">•</span>
-          <span>{timeAgo(post.created_at)}</span>
+          {post.author_avatar ? (
+            <img src={post.author_avatar} className="post-card-avatar" alt="" />
+          ) : (
+            <div className="post-card-avatar-placeholder">
+              {post.author ? post.author[0].toUpperCase() : "?"}
+            </div>
+          )}
+          <Link to={`/user/${post.author}`} className="post-card-author">{post.author}</Link>
+          <span className="dot">·</span>
+          <span className="post-card-time">{timeAgo(post.created_at)}</span>
         </div>
 
-        <p className="post-card-body">
-          {post.body && post.body.length > 300 
-            ? `${post.body.substring(0, 300)}...` 
-            : post.body}
-        </p>
+        {post.body && (
+          <p className="post-card-body">
+            {post.body.length > 300 ? `${post.body.substring(0, 300)}…` : post.body}
+          </p>
+        )}
 
         <div className="post-card-footer">
           <Link to={`/post/${post.id}`} className="footer-action">
-            <MessageSquare size={18} />
+            <MessageSquare size={16} />
             <span>{post.comment_count || 0} comments</span>
           </Link>
-          <button className="footer-action btn-link" onClick={() => {
-            navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
-            alert("Link copied!");
-          }}>
-            <Share2 size={18} />
+          <button
+            className="footer-action"
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+              alert("Link copied!");
+            }}
+          >
+            <Share2 size={16} />
             <span>Share</span>
           </button>
         </div>
