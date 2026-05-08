@@ -120,13 +120,15 @@ router.get("/", async (req, res) => {
     const sort = req.query.sort === "top" ? "score" : "new";
 
     // Extract user id from token if present (optional auth)
-    let userId = null;
+    let userId = 0; // Default to 0 for guest
     const header = req.headers.authorization;
     if (header && header.startsWith("Bearer ")) {
       try {
         const decoded = jwt.verify(header.split(" ")[1], process.env.JWT_SECRET);
         userId = decoded.id;
-      } catch (_) {}
+      } catch (_) {
+        userId = 0;
+      }
     }
 
     const orderBy = sort === "score"
