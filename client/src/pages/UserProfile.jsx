@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
+import { Settings } from "lucide-react";
 import PostCard from "../components/PostCard";
 import "./UserProfile.css";
 
