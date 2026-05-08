@@ -23,7 +23,8 @@ export default function Home() {
       })
       .catch((err) => {
         console.error("Failed to load posts:", err);
-        setError("Unable to connect to server. Check DB sync.");
+        const serverError = err.response?.data?.error || err.message;
+        setError(`SQL Error: ${serverError}`);
         setPosts([]);
         setTotalPages(1);
       })
