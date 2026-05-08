@@ -1,3 +1,11 @@
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import api from "../api";
+import { useAuth } from "../context/AuthContext";
+import VoteButtons from "../components/VoteButtons";
+import CommentSection from "../components/CommentSection";
+import "./PostDetail.css";
+
 export default function PostDetail() {
   const { id } = useParams();
   const { user } = useAuth();

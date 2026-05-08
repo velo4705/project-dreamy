@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db/pool");
 const auth = require("../middleware/auth");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
@@ -57,7 +58,6 @@ router.get("/search", async (req, res) => {
     const header = req.headers.authorization;
     if (header && header.startsWith("Bearer ")) {
       try {
-        const jwt = require("jsonwebtoken");
         const decoded = jwt.verify(header.split(" ")[1], process.env.JWT_SECRET);
         userId = decoded.id;
       } catch (_) {}
@@ -121,7 +121,6 @@ router.get("/", async (req, res) => {
     const header = req.headers.authorization;
     if (header && header.startsWith("Bearer ")) {
       try {
-        const jwt = require("jsonwebtoken");
         const decoded = jwt.verify(header.split(" ")[1], process.env.JWT_SECRET);
         userId = decoded.id;
       } catch (_) {}
@@ -134,17 +133,14 @@ router.get("/", async (req, res) => {
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
               u.username AS author,
-              COALESCE(SUM(v.value), 0)::int AS score,
-              COUNT(DISTINCT c.id)::int AS comment_count,
+              (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
+              (SELECT COUNT(*)::int FROM comments WHERE post_id = p.id) AS comment_count,
               COALESCE(
                 (SELECT value FROM votes WHERE user_id = $1 AND post_id = p.id),
                 0
               )::int AS user_vote
        FROM posts p
        JOIN users u ON p.author_id = u.id
-       LEFT JOIN votes v ON v.post_id = p.id
-       LEFT JOIN comments c ON c.post_id = p.id
-       GROUP BY p.id, u.username
        ORDER BY ${orderBy}
        LIMIT $2 OFFSET $3`,
       [userId, limit, offset]
@@ -177,7 +173,6 @@ router.get("/:id", async (req, res) => {
     const header = req.headers.authorization;
     if (header && header.startsWith("Bearer ")) {
       try {
-        const jwt = require("jsonwebtoken");
         const decoded = jwt.verify(header.split(" ")[1], process.env.JWT_SECRET);
         userId = decoded.id;
       } catch (_) {}
@@ -186,18 +181,15 @@ router.get("/:id", async (req, res) => {
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
               u.username AS author,
-              COALESCE(SUM(v.value), 0)::int AS score,
-              COUNT(DISTINCT c.id)::int AS comment_count,
+              (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
+              (SELECT COUNT(*)::int FROM comments WHERE post_id = p.id) AS comment_count,
               COALESCE(
                 (SELECT value FROM votes WHERE user_id = $1 AND post_id = p.id),
                 0
               )::int AS user_vote
        FROM posts p
        JOIN users u ON p.author_id = u.id
-       LEFT JOIN votes v ON v.post_id = p.id
-       LEFT JOIN comments c ON c.post_id = p.id
-       WHERE p.id = $2
-       GROUP BY p.id, u.username`,
+       WHERE p.id = $2`,
       [userId, id]
     );
 
