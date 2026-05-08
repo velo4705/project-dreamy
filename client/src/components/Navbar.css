@@ -78,3 +78,24 @@
 .navbar-user:hover {
   color: var(--accent-hover);
 }
+
+@media (max-width: 640px) {
+  .navbar-inner {
+    gap: 0.5rem;
+  }
+  .navbar-search {
+    max-width: 150px;
+  }
+  .navbar-search button {
+    display: none; /* Hide search button, just use Enter */
+  }
+  .navbar-search input {
+    border-radius: var(--radius-sm);
+  }
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+  .navbar-links {
+    gap: 0.4rem;
+  }
+}

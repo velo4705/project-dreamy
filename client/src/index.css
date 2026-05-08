@@ -106,6 +106,7 @@ body {
 }
 
 .container {
+  width: 100%;
   max-width: 960px;
   margin: 0 auto;
   padding: 1.5rem 1rem;
@@ -231,8 +232,21 @@ textarea {
   font-size: 0.95rem;
 }
 
+/* --- Responsive Breakpoints --- */
+
+/* Tablet View (up to 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 850px;
+  }
+}
+
+/* Smartphone View (up to 640px) */
 @media (max-width: 640px) {
   .container {
-    padding: 1rem 0.75rem;
+    padding: 0.75rem 0.5rem;
   }
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1.2rem; }
+  .btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
 }
