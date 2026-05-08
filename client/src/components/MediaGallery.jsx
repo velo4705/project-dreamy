@@ -1,24 +1,81 @@
+import { useState, useRef } from "react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import "./MediaGallery.css";
 
 export default function MediaGallery({ media, mediaUrl, mediaType }) {
-  // Use the new 'media' array if available, otherwise fallback to old single items
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollRef = useRef(null);
+
   const items = (media && Array.isArray(media) && media.length > 0)
     ? media
     : (mediaUrl ? [{ url: mediaUrl, type: mediaType }] : []);
 
   if (items.length === 0) return null;
 
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const index = Math.round(scrollLeft / clientWidth);
+      setCurrentIndex(index);
+    }
+  };
+
+  const scrollTo = (index) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        left: index * scrollRef.current.clientWidth,
+        behavior: "smooth"
+      });
+    }
+  };
+
   return (
-    <div className={`media-gallery count-${Math.min(items.length, 4)}`}>
-      {items.map((item, index) => (
-        <div key={index} className="media-item">
-          {item.type === "video" ? (
-            <video src={item.url} controls={items.length === 1} muted={items.length > 1} />
-          ) : (
-            <img src={item.url} alt="" loading="lazy" />
+    <div className="media-carousel-container">
+      <div 
+        className="media-carousel-scroll" 
+        ref={scrollRef} 
+        onScroll={handleScroll}
+      >
+        {items.map((item, index) => (
+          <div key={index} className="media-slide">
+            {item.type === "video" ? (
+              <video 
+                src={item.url} 
+                controls 
+                preload="metadata"
+                className="carousel-video"
+              />
+            ) : (
+              <img src={item.url} alt="" loading="lazy" />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {items.length > 1 && (
+        <>
+          <div className="carousel-dots">
+            {items.map((_, i) => (
+              <div 
+                key={i} 
+                className={`dot ${i === currentIndex ? 'active' : ''}`}
+                onClick={() => scrollTo(i)}
+              />
+            ))}
+          </div>
+          
+          {currentIndex > 0 && (
+            <button className="nav-btn prev" onClick={() => scrollTo(currentIndex - 1)}>
+              <ChevronLeft size={20} />
+            </button>
           )}
-        </div>
-      ))}
+          {currentIndex < items.length - 1 && (
+            <button className="nav-btn next" onClick={() => scrollTo(currentIndex + 1)}>
+              <ChevronRight size={20} />
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 }
