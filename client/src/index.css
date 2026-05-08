@@ -48,24 +48,74 @@
   --text-muted: #666666;
 }
 
-/* ===== CORE STYLES (Using Variables) ===== */
+/* ===== CORE STYLES ===== BUTTONS & INPUTS ===== */
+
+.btn {
+  font-family: "Outfit", sans-serif;
+  border-radius: var(--radius-full);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+  transform: translateY(-1px) scale(0.97);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white !important;
+  box-shadow: 0 4px 15px var(--accent-soft);
+}
+
+.btn-secondary {
+  background: var(--surface-raised);
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-light);
+  color: var(--accent) !important;
+}
+
+.btn-icon {
+  padding: 0.6rem;
+  aspect-ratio: 1/1;
+}
+
+input, textarea {
+  font-family: "Outfit", sans-serif;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.3s ease;
+  padding: 0.8rem 1rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
 
 body {
   font-family: "Outfit", sans-serif;
   background: var(--bg);
   color: var(--text-primary);
   transition: background 0.4s ease, color 0.4s ease;
-}
-
-/* Use the dynamic accent for buttons, borders, and highlights */
-.btn-primary {
-  background: var(--accent) !important;
-  color: white !important;
-}
-
-.btn-primary:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 4px 15px var(--accent-soft);
 }
 
 .navbar-brand {

@@ -1,3 +1,4 @@
+import { ArrowBigUp, ArrowBigDown } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./VoteButtons.css";
@@ -21,7 +22,7 @@ export default function VoteButtons({ score, userVote, onVote }) {
         onClick={() => handleVote(1)}
         title="Upvote"
       >
-        &#9650;
+        <ArrowBigUp size={24} fill={userVote === 1 ? "currentColor" : "none"} />
       </button>
       <span className="vote-score">{score}</span>
       <button
@@ -29,7 +30,7 @@ export default function VoteButtons({ score, userVote, onVote }) {
         onClick={() => handleVote(-1)}
         title="Downvote"
       >
-        &#9660;
+        <ArrowBigDown size={24} fill={userVote === -1 ? "currentColor" : "none"} />
       </button>
     </div>
   );
