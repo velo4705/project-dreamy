@@ -35,7 +35,12 @@ export default function CreatePost() {
       return;
     }
 
-    setUploading(true);
+    if (!supabase) {
+      alert("Media upload is currently disabled (Server configuration missing).");
+      setUploading(false);
+      return;
+    }
+
     try {
       const fileName = `${Date.now()}_${file.name}`;
       const { data, error } = await supabase.storage
