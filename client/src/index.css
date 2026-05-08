@@ -17,6 +17,7 @@
 
 [data-theme="light"] {
   --bg: #fdfaf7;
+  --bg-primary: #fdfaf7;
   --bg-secondary: #f7f1eb;
   --surface: rgba(255, 255, 255, 0.85);
   --surface-raised: #ffffff;
@@ -28,6 +29,7 @@
 
 [data-theme="dark"] {
   --bg: #14121a;
+  --bg-primary: #14121a;
   --bg-secondary: #1c1a24;
   --surface: rgba(38, 34, 48, 0.8);
   --surface-raised: #2e2a38;
@@ -39,13 +41,14 @@
 
 [data-theme="amoled"] {
   --bg: #000000;
+  --bg-primary: #000000;
   --bg-secondary: #0a0a0a;
-  --surface: rgba(15, 15, 15, 0.8);
-  --surface-raised: #111111;
-  --border: rgba(255,255,255,0.1);
+  --surface: rgba(20, 20, 20, 0.8);
+  --surface-raised: #151515;
+  --border: rgba(255,255,255,0.15);
   --text-primary: #ffffff;
   --text-secondary: #cccccc;
-  --text-muted: #666666;
+  --text-muted: #888888;
 }
 
 /* ===== CORE STYLES ===== BUTTONS & INPUTS ===== */
@@ -187,4 +190,22 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* --- Visibility Fixes --- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+.loading {
+  text-align: center;
+  padding: 10rem 2rem;
+  font-size: 1.2rem;
+  color: var(--accent);
+  font-weight: 700;
+  text-shadow: 0 0 20px var(--accent-soft);
 }
