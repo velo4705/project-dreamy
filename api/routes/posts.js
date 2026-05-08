@@ -5,7 +5,27 @@ const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-// GET /api/posts - Dreamy 3.0 Feed
+// GET /api/posts/search - Search posts
+router.get("/search", async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.json({ posts: [] });
+
+    const result = await pool.query(
+      `SELECT p.*, u.username AS author, u.avatar_url AS author_avatar
+       FROM posts p
+       LEFT JOIN users u ON p.author_id = u.id
+       WHERE p.title ILIKE $1 OR p.body ILIKE $1
+       ORDER BY p.created_at DESC LIMIT 20`,
+      [`%${q}%`]
+    );
+    res.json({ posts: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/posts - Feed
 router.get("/", async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -13,7 +33,6 @@ router.get("/", async (req, res) => {
     const offset = (page - 1) * limit;
     const sort = req.query.sort === "top" ? "score" : "new";
 
-    // Optional Auth for voting status
     let userId = 0;
     const header = req.headers.authorization;
     if (header && header.startsWith("Bearer ")) {
@@ -44,7 +63,6 @@ router.get("/", async (req, res) => {
     `;
 
     const result = await pool.query(sql, [userId, limit, offset]);
-    
     const countRes = await pool.query("SELECT COUNT(*)::int as total FROM posts");
     const total = countRes.rows[0].total;
 
@@ -54,15 +72,16 @@ router.get("/", async (req, res) => {
       currentPage: page
     });
   } catch (err) {
-    console.error("Feed Error:", err);
-    res.status(500).json({ error: "Failed to load feed: " + err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Single post detail
+// GET /api/posts/:id - Detail
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    if (!id || id === 'undefined') return res.status(400).json({ error: "Invalid ID" });
+
     let userId = 0;
     const header = req.headers.authorization;
     if (header && header.startsWith("Bearer ")) {
@@ -92,7 +111,32 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Create Post
+// POST /api/posts/:id/vote - Vote
+router.post("/:id/vote", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { value } = req.body; // 1, -1, or 0
+    const userId = req.user.id;
+
+    await pool.query(
+      `INSERT INTO votes (user_id, post_id, value) 
+       VALUES ($1, $2, $3) 
+       ON CONFLICT (user_id, post_id) DO UPDATE SET value = $3`,
+      [userId, id, value]
+    );
+
+    const scoreResult = await pool.query(
+      "SELECT COALESCE(SUM(value), 0)::int AS score FROM votes WHERE post_id = $1",
+      [id]
+    );
+
+    res.json({ score: scoreResult.rows[0].score, user_vote: value });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/posts - Create
 router.post("/", auth, async (req, res) => {
   try {
     const { title, body, parent_post_id, media_url, media_type } = req.body;
