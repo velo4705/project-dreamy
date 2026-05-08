@@ -160,7 +160,17 @@ router.get("/", async (req, res) => {
       );
     } catch (dbErr) {
       console.error("DATABASE ERROR in GET /posts:", dbErr.message);
-      return res.status(500).json({ error: dbErr.message });
+      // NUCLEAR DEBUG: Send error as a fake post so it shows on screen
+      return res.json({ 
+        posts: [{ 
+          id: 999, 
+          title: "🚨 DATABASE ERROR DETECTED", 
+          body: dbErr.message, 
+          author: "System Debugger",
+          created_at: new Date()
+        }], 
+        totalPages: 1 
+      });
     }
 
     // Get total count for pagination
@@ -181,7 +191,16 @@ router.get("/", async (req, res) => {
     });
   } catch (err) {
     console.error("List posts error:", err);
-    res.status(500).json({ error: "Outer Error: " + err.message });
+    return res.json({ 
+      posts: [{ 
+        id: 888, 
+        title: "🚨 GLOBAL ROUTE ERROR", 
+        body: err.message, 
+        author: "System Debugger",
+        created_at: new Date()
+      }], 
+      totalPages: 1 
+    });
   }
 });
 
