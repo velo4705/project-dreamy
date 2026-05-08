@@ -1,147 +1,85 @@
-# Project Context: Reddit Clone (DBMS Project)
+# 🌌 Project Context: Project Dreamy
 
-## Overview
-
-A Reddit-like web app built for a Database Management Systems university project. Full-stack with React frontend, Node.js backend, and PostgreSQL.
-
-> **IMPORTANT**: The database has been migrated from Neon to **Supabase**. All connection strings should use Supabase's PostgreSQL details.
+## 📝 Overview
+**Project Dreamy** is a modern, media-centric social platform built as a DBMS course project. It has evolved from a simple post-feed into a highly aesthetic, customizable social experience with high-performance media handling and a dynamic theme engine.
 
 ---
 
-## Tech Stack
-
-- **Frontend**: React 18 + Vite, React Router, Axios
-- **Backend**: Node.js + Express (CommonJS)
+## 🛠️ Tech Stack
+- **Frontend**: React 19 + Vite, React Router 7, Axios
+- **Backend**: Node.js + Express (Unified Vercel Serverless Architecture)
 - **Database**: PostgreSQL (Supabase)
-- **Auth**: JWT + bcrypt
-- **Deployment**: Vercel
-- **Testing**: Vitest + fast-check (property-based)
+- **Media Storage**: Supabase Storage Buckets
+- **Icons**: Lucide React
+- **Theming**: CSS Variables + Custom Context Provider
 
 ---
 
-## Project Structure
-
+## 📂 Project Structure
 ```
-dbms-project/
+project-dreamy/
 ├── client/                  # React/Vite frontend
-├── server/                  # Node.js/Express backend (local dev)
-│   ├── routes/              # auth.js, posts.js, comments.js
+│   ├── src/
+│   │   ├── components/      # MediaGallery, PostCard, StarryBackground
+│   │   ├── context/         # AuthContext, ThemeContext
+│   │   ├── pages/           # Home, UserProfile, Settings, Messages
+│   │   └── api.js           # Central API configuration (axios)
+├── api/                     # Vercel unified backend
+│   ├── routes/              # auth.js, posts.js, messages.js, friends.js
 │   ├── middleware/          # auth.js (JWT verification)
-│   ├── db/                  # pool.js, schema.sql, seed.sql
-│   └── index.js             # Express app entry point
-├── api/                     # Vercel serverless function bridge
-│   └── index.js             # Bridge to Express app
-├── vercel.json              # Vercel deployment + routing config
+│   ├── db/                  # pool.js (PostgreSQL pool)
+│   └── index.js             # Express app entry point (Vercel Bridge)
+├── vercel.json              # Vercel routing & environment config
 └── package.json             # Workspace root
 ```
 
 ---
 
-## Environment Variables (.env)
+## 🌟 Dreamy Features (Phase 2+)
 
-Configured for Supabase:
+### 🎞️ Media Gallery 4.0
+Uses a **Scroll-Snap Carousel** with an **Ambient Background Blur** effect. It duplicates the media in a blurred, scaled background layer to eliminate black bars for non-standard aspect ratios.
 
-```env
-DATABASE_URL=postgresql://<user>:<password>@<host>:5432/<db>?sslmode=require
-JWT_SECRET=dreamy_dbms_project_super_secret_jwt_key_2026_secure_random_string
-```
-
----
-
-## Database Migration: Supabase
-
-To setup:
-
-1. Create a new project at https://supabase.com
-2. Go to **Settings → Database** to get the connection string
-3. Run `server/db/schema.sql` in the Supabase SQL editor
-4. Run `server/db/seed.sql` for sample data
-5. Update `.env` with the new Supabase `DATABASE_URL`
+### 🎨 Rainbow Theme Engine
+A custom `ThemeContext` that manages:
+- **Base Theme**: Light, Dark, AMOLED (Pure Black).
+- **Accent Color**: Real-time CSS variable updates (`--accent`) with a custom conic-gradient picker.
+- **Global Background**: A `StarryBackground` component that renders 50+ animated particles with theme-aware colors.
 
 ---
 
-## Current Status
+## 🔧 Maintenance & Setup
 
-| Area | Status |
-|------|--------|
-| Database schema + seed | ✅ Done (Ready for Supabase) |
-| Backend routes (Express) | ✅ Done |
-| Frontend (Synced with Express) | ✅ Done |
-| Auth Stability | ✅ Fixed |
-| Vercel Unified Backend | ✅ Done |
+### 1. Environment Variables
+Ensure the following are set in Vercel and local `.env`:
+- `DATABASE_URL`: Supabase PostgreSQL connection string.
+- `JWT_SECRET`: Secure string for token signing.
+- `VITE_SUPABASE_URL`: Public Supabase API URL.
+- `VITE_SUPABASE_ANON_KEY`: Public Supabase Anon Key.
 
----
-
-## Known Bugs to Fix
-
-### Bug 1: AuthContext uses mock user on session restore
-
-**File**: `client/src/context/AuthContext.jsx`
-
-**Problem**: When the app loads and finds a token in localStorage, it sets a hardcoded mock user `{ username: "testuser" }` instead of fetching the real user from the API. This means `user.id` is `undefined`, causing post creation and other auth-dependent actions to fail with "Failed to create post".
-
-**Fix**: Replace the mock with a real call to `GET /api/auth/me`:
-
-```jsx
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    api.get("/auth/me")
-      .then(res => setUser(res.data))
-      .catch(() => {
-        localStorage.removeItem("token");
-        setUser(null);
-      })
-      .finally(() => setLoading(false));
-  } else {
-    setLoading(false);
-  }
-}, []);
-```
-
-### Bug 2: API paths mismatch between frontend and backend
-
-**File**: `client/src/context/AuthContext.jsx`
-
-**Problem**: The login/register calls use `/auth-login` and `/auth-register` (old Vercel serverless paths) but the server routes are mounted at `/auth/login` and `/auth/register`.
-
-**Fix**: Update the API calls:
-```js
-// Change this:
-api.post("/auth-login", ...)
-api.post("/auth-register", ...)
-
-// To this:
-api.post("/auth/login", ...)
-api.post("/auth/register", ...)
-```
-
----
-
-## Vercel Deployment Notes
-
-- `vercel.json` routes `/api/auth/register` → `/api/auth-register` (serverless functions in `/api` folder)
-- There are **two backend implementations**:
-  - `/api/` folder — Vercel serverless functions (used in production)
-  - `/server/` folder — Express app (used for local development)
-- Both need to be kept in sync when making backend changes
-- Set `DATABASE_URL` and `JWT_SECRET` in Vercel project environment variables
-
----
-
-## Running Locally
-
+### 2. Renaming Precaution
+The project was renamed from `dbms-project` to `project-dreamy`. Ensure all local git remotes are updated:
 ```bash
-# 1. Install dependencies
+git remote set-url origin https://github.com/velo4705/project-dreamy
+```
+
+---
+
+## 🚀 Running Locally
+```bash
+# Install everything
 npm install
 
-# 2. Start backend (runs on port 5000)
-cd server && npm run dev
-
-# 3. Start frontend (runs on port 5173)
-cd client && npm run dev
-
-# 4. Open http://localhost:5173
+# Start both frontend and backend
+npm run dev
 ```
+- Frontend: `localhost:5173`
+- Backend: Proxied via `/api`
 
-The Vite dev server proxies `/api` requests to `localhost:5000` automatically.
+---
+
+## 👨‍💻 Roadmap
+- [x] Phase 1: Core CRUD & Auth
+- [x] Phase 2: Profiles & Media Polish
+- [ ] Phase 3: Real-time Messages (WebSockets/Supabase Realtime)
+- [ ] Phase 4: Friendship & Social Graph logic
