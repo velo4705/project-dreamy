@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Search, Plus, Mail, Settings } from "lucide-react";
 import "./Navbar.css";
 
 export default function Navbar() {
@@ -22,21 +23,21 @@ export default function Navbar() {
           Dreamy
         </Link>
 
-        <form className="navbar-search" onSubmit={handleSearch}>
+        <form className="navbar-search-pill" onSubmit={handleSearch}>
+          <Search size={18} className="search-icon" />
           <input
             type="text"
-            placeholder="Search posts..."
+            placeholder="Search dreamy posts..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button type="submit">Search</button>
         </form>
 
         <div className="navbar-links">
           {user ? (
             <>
-              <Link to="/create" className="btn btn-primary">
-                + New Post
+              <Link to="/create" className="btn btn-primary create-btn">
+                <Plus size={18} /> <span>New Post</span>
               </Link>
               <Link to={`/user/${user.username}`} className="navbar-user">
                 <img 
@@ -44,9 +45,9 @@ export default function Navbar() {
                   alt="" 
                   className="navbar-avatar" 
                 />
-                {user.username}
+                <span className="navbar-username">{user.username}</span>
               </Link>
-              <button onClick={logout} className="btn btn-secondary">
+              <button onClick={logout} className="btn btn-secondary logout-btn">
                 Logout
               </button>
             </>
@@ -61,10 +62,10 @@ export default function Navbar() {
             </>
           )}
           <Link to="/messages" className="navbar-icon" title="Messages">
-            ✉️
+            <Mail size={22} />
           </Link>
           <Link to="/settings" className="navbar-settings" title="Settings & Credits">
-            ⚙️
+            <Settings size={22} />
           </Link>
         </div>
       </div>

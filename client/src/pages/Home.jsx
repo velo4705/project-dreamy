@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import api from "../api";
 import PostCard from "../components/PostCard";
+import { Sparkles, TrendingUp, Ghost } from "lucide-react";
 import "./Home.css";
 
 export default function Home() {
@@ -23,7 +23,7 @@ export default function Home() {
       })
       .catch((err) => {
         console.error("Failed to load posts:", err);
-        setError("Unable to connect to server. This is a demo deployment.");
+        setError("Unable to connect to server. Check DB sync.");
         setPosts([]);
         setTotalPages(1);
       })
@@ -46,42 +46,45 @@ export default function Home() {
   };
 
   return (
-    <div className="home">
+    <div className="home container">
       <div className="home-header">
-        <h2>Posts</h2>
-        <div className="sort-buttons">
+        <h1 className="home-title">Feed</h1>
+        <div className="sort-group glass-panel">
           <button
-            className={`sort-btn ${sort === "new" ? "active" : ""}`}
-            onClick={() => {
-              setSort("new");
-              setPage(1);
-            }}
+            className={`sort-tab ${sort === "new" ? "active" : ""}`}
+            onClick={() => { setSort("new"); setPage(1); }}
           >
-            New
+            <Sparkles size={18} />
+            <span>New</span>
           </button>
           <button
-            className={`sort-btn ${sort === "top" ? "active" : ""}`}
-            onClick={() => {
-              setSort("top");
-              setPage(1);
-            }}
+            className={`sort-tab ${sort === "top" ? "active" : ""}`}
+            onClick={() => { setSort("top"); setPage(1); }}
           >
-            Top
+            <TrendingUp size={18} />
+            <span>Top</span>
           </button>
         </div>
       </div>
 
       {loading ? (
-        <p className="loading">Loading posts...</p>
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Floating into the feed...</p>
+        </div>
       ) : error ? (
-        <div className="empty">
-          <h3>Welcome to Dreamy! 🌸</h3>
-          <p>This is a demo deployment of the frontend only.</p>
-          <p>The backend server is not connected, so posts cannot be loaded or created.</p>
-          <p>Check out the beautiful pastel design and theme toggle!</p>
+        <div className="empty-state centered">
+          <div className="empty-icon">🌸</div>
+          <h3>Welcome to Dreamy!</h3>
+          <p>We are currently experiencing a database connection issue (500 Error).</p>
+          <p>Please wait a moment for the sync to finish or try refreshing.</p>
         </div>
       ) : posts.length === 0 ? (
-        <p className="empty">No posts yet. Be the first to post!</p>
+        <div className="empty-state centered">
+          <Ghost size={48} className="empty-icon" />
+          <h3>No posts yet.</h3>
+          <p>Be the first one to share a dreamy thought!</p>
+        </div>
       ) : (
         <>
           <div className="post-list">
@@ -96,19 +99,13 @@ export default function Home() {
 
           {totalPages > 1 && (
             <div className="pagination">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Previous
+              <button className="btn btn-secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                Prev
               </button>
-              <span>
-                Page {page} of {totalPages}
+              <span className="page-info">
+                {page} / {totalPages}
               </span>
-              <button
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
+              <button className="btn btn-secondary" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
                 Next
               </button>
             </div>
