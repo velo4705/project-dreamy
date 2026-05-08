@@ -112,6 +112,43 @@
   border-radius: 4px;
 }
 
+/* Modern Floating Nav Buttons */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 20;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.media-carousel-container:hover .nav-btn {
+  opacity: 1;
+}
+
+.nav-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent-light);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 20px var(--accent-soft);
+}
+
+.nav-btn.prev { left: 16px; }
+.nav-btn.next { right: 16px; }
+
 /* === Responsive Breakpoints (Mobile/Tablet/Desktop/TV) === */
 
 /* Tablets & Small Desktops */
