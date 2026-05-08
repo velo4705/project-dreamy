@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
         COALESCE(c.comment_count, 0)::int AS comment_count,
         COALESCE(uv.value, 0)::int AS user_vote
       FROM posts p
-      JOIN users u ON p.author_id = u.id
+      LEFT JOIN users u ON p.author_id = u.id
       LEFT JOIN (SELECT post_id, SUM(value) as score FROM votes GROUP BY post_id) v ON v.post_id = p.id
       LEFT JOIN (SELECT post_id, COUNT(*) as comment_count FROM comments GROUP BY post_id) c ON c.post_id = p.id
       LEFT JOIN (SELECT post_id, value FROM votes WHERE user_id = $1) uv ON uv.post_id = p.id
@@ -80,9 +80,9 @@ router.get("/:id", async (req, res) => {
               (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
               COALESCE((SELECT value FROM votes WHERE user_id = $2 AND post_id = p.id), 0)::int AS user_vote
        FROM posts p
-       JOIN users u ON p.author_id = u.id
+       LEFT JOIN users u ON p.author_id = u.id
        WHERE p.id = $1`,
-      [parseInt(id), userId]
+      [id, userId]
     );
 
     if (result.rows.length === 0) return res.status(404).json({ error: "Post not found" });
