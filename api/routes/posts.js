@@ -8,7 +8,7 @@ const router = express.Router();
 // POST /api/posts - Create a new post (auth required)
 router.post("/", auth, async (req, res) => {
   try {
-    const { title, body } = req.body;
+    const { title, body, parent_post_id } = req.body;
 
     if (!title || title.trim().length === 0) {
       return res.status(400).json({ error: "Title is required" });
@@ -19,10 +19,10 @@ router.post("/", auth, async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO posts (title, body, author_id)
-       VALUES ($1, $2, $3)
-       RETURNING id, title, body, author_id, created_at, updated_at`,
-      [title.trim(), body || null, req.user.id]
+      `INSERT INTO posts (title, body, author_id, parent_post_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, title, body, author_id, parent_post_id, created_at, updated_at`,
+      [title.trim(), body || null, req.user.id, parent_post_id || null]
     );
 
     const post = result.rows[0];
@@ -68,6 +68,7 @@ router.get("/search", async (req, res) => {
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
               u.username AS author,
+              u.avatar_url AS author_avatar,
               COALESCE(SUM(v.value), 0)::int AS score,
               COUNT(DISTINCT c.id)::int AS comment_count,
               COALESCE(
@@ -133,6 +134,9 @@ router.get("/", async (req, res) => {
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
               u.username AS author,
+              u.avatar_url AS author_avatar,
+              p.parent_post_id,
+              pp.title AS parent_title,
               (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
               (SELECT COUNT(*)::int FROM comments WHERE post_id = p.id) AS comment_count,
               COALESCE(
@@ -141,6 +145,7 @@ router.get("/", async (req, res) => {
               )::int AS user_vote
        FROM posts p
        JOIN users u ON p.author_id = u.id
+       LEFT JOIN posts pp ON p.parent_post_id = pp.id
        ORDER BY ${orderBy}
        LIMIT $2 OFFSET $3`,
       [userId, limit, offset]
@@ -181,6 +186,9 @@ router.get("/:id", async (req, res) => {
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
               u.username AS author,
+              u.avatar_url AS author_avatar,
+              p.parent_post_id,
+              pp.title AS parent_title,
               (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
               (SELECT COUNT(*)::int FROM comments WHERE post_id = p.id) AS comment_count,
               COALESCE(
@@ -189,6 +197,7 @@ router.get("/:id", async (req, res) => {
               )::int AS user_vote
        FROM posts p
        JOIN users u ON p.author_id = u.id
+       LEFT JOIN posts pp ON p.parent_post_id = pp.id
        WHERE p.id = $2`,
       [userId, id]
     );

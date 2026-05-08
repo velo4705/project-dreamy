@@ -156,6 +156,20 @@ export default function PostDetail() {
           ) : (
             <>
               <h1 className="post-detail-title">{post?.title}</h1>
+              {post?.media_url && (
+                <div className="post-detail-media">
+                  {post?.media_type === "video" ? (
+                    <video src={post.media_url} controls />
+                  ) : (
+                    <img src={post.media_url} alt="" />
+                  )}
+                </div>
+              )}
+              {post?.parent_post_id && (
+                <div className="crosspost-banner detail">
+                  Responding to: <Link to={`/post/${post.parent_post_id}`}>{post.parent_title || "Deleted Post"}</Link>
+                </div>
+              )}
               <div className="post-detail-meta">
                 Posted by{" "}
                 <Link to={`/user/${post?.author}`}>{post?.author}</Link>{" "}
@@ -177,6 +191,28 @@ export default function PostDetail() {
                   >
                     Delete
                   </button>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      alert("Link copied to clipboard!");
+                    }}
+                  >
+                    Share
+                  </button>
+                </div>
+              )}
+              {!isOwner && (
+                <div className="post-owner-actions">
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      alert("Link copied to clipboard!");
+                    }}
+                  >
+                    Share
+                  </button>
                 </div>
               )}
             </>
@@ -188,6 +224,7 @@ export default function PostDetail() {
 
       <CommentSection
         comments={comments}
+        postAuthorId={post?.author_id}
         onAdd={handleAddComment}
         onDelete={handleDeleteComment}
       />

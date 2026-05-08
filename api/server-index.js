@@ -3,77 +3,51 @@ const cors = require("cors");
 require("dotenv").config();
 
 const pool = require("./db/pool");
-
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Debug endpoint to check database connection
+// Import Routers
+const authRouter = require("./routes/auth");
+const postsRouter = require("./routes/posts");
+const commentsRouter = require("./routes/comments");
+const usersRouter = require("./routes/users");
+const notificationsRouter = require("./routes/notifications");
+const messagesRouter = require("./routes/messages");
+const friendsRouter = require("./routes/friends");
+const votesRouter = require("./routes/votes");
+const searchRouter = require("./routes/search");
+
+// --- API Route Mounting ---
+app.use("/api/auth", authRouter);
+app.use("/api/posts", postsRouter);
+app.use("/api/comments", commentsRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/notifications", notificationsRouter);
+app.use("/api/messages", messagesRouter);
+app.use("/api/friends", friendsRouter);
+app.use("/api/votes", votesRouter);
+app.use("/api/search", searchRouter);
+
+// Debug endpoint
 app.get("/api/debug", async (req, res) => {
   try {
-    console.log("🔍 Debug endpoint called");
-    console.log("Environment variables:", {
-      DATABASE_URL: process.env.DATABASE_URL ? "SET" : "NOT SET",
-      DB_USER: process.env.DB_USER ? "SET" : "NOT SET",
-      DB_HOST: process.env.DB_HOST || "NOT SET",
-      DB_NAME: process.env.DB_NAME || "NOT SET",
-    });
-
     const result = await pool.query("SELECT NOW(), version()");
-    console.log("✅ Database connection successful");
-
     res.json({
       status: "success",
       message: "Database connected",
       timestamp: result.rows[0].now,
-      postgres_version: result.rows[0].version,
-      env_vars: {
-        database_url: !!process.env.DATABASE_URL,
-        db_user: !!process.env.DB_USER,
-        db_host: !!process.env.DB_HOST,
-        db_name: !!process.env.DB_NAME,
-      }
+      postgres_version: result.rows[0].version
     });
   } catch (err) {
-    console.error("❌ Database connection failed:", err);
-    const dbUrl = process.env.DATABASE_URL || "";
-    const hostMatch = dbUrl.match(/@([^:/]+)/);
-    const host = hostMatch ? hostMatch[1] : "NOT FOUND";
-
-    res.json({
-      status: "error",
-      message: "Database connection failed",
-      error: err.message,
-      debug: {
-        detected_host: host,
-        url_length: dbUrl.length,
-        starts_with_postgres: dbUrl.startsWith("postgresql://")
-      },
-      env_vars: {
-        database_url: !!process.env.DATABASE_URL,
-      }
-    });
+    res.status(500).json({ status: "error", error: err.message });
   }
 });
-
-// Health check
-app.get("/api/health", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({ status: "ok", time: result.rows[0].now });
-  } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
-  }
-});
-
-// Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api", require("./routes/comments"));
-app.use("/api/posts", require("./routes/posts"));
 
 module.exports = app;
+
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {

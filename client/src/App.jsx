@@ -9,6 +9,8 @@ import CreatePost from "./pages/CreatePost";
 import PostDetail from "./pages/PostDetail";
 import Search from "./pages/Search";
 import UserProfile from "./pages/UserProfile";
+import Settings from "./pages/Settings";
+import Messages from "./pages/Messages";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
               <Route path="/post/:id" element={<PostDetail />} />
               <Route path="/search" element={<Search />} />
               <Route path="/user/:username" element={<UserProfile />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/messages" element={<Messages />} />
             </Routes>
           </main>
         </BrowserRouter>

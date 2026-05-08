@@ -40,6 +40,22 @@ router.post("/posts/:postId/comments", auth, async (req, res) => {
     );
 
     const comment = result.rows[0];
+
+    // Create Notification for the Post Author (if not the same person)
+    const postAuthorResult = await pool.query("SELECT author_id FROM posts WHERE id = $1", [postId]);
+    const postAuthorId = postAuthorResult.rows[0]?.author_id;
+
+    if (postAuthorId && postAuthorId !== req.user.id) {
+      await pool.query(
+        "INSERT INTO notifications (user_id, type, data) VALUES ($1, $2, $3)",
+        [postAuthorId, "comment", JSON.stringify({ 
+          postId, 
+          commentId: comment.id, 
+          commenter: req.user.username 
+        })]
+      );
+    }
+
     comment.author = req.user.username;
 
     res.status(201).json(comment);
@@ -63,7 +79,8 @@ router.get("/posts/:postId/comments", async (req, res) => {
 
     const result = await pool.query(
       `SELECT c.id, c.body, c.author_id, c.post_id, c.parent_id, c.created_at,
-              u.username AS author
+              u.username AS author,
+              u.avatar_url AS author_avatar
        FROM comments c
        JOIN users u ON c.author_id = u.id
        WHERE c.post_id = $1

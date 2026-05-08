@@ -25,7 +25,26 @@ export default function PostCard({ post, onVote }) {
         <Link to={`/post/${post.id}`} className="post-card-title">
           {post.title}
         </Link>
+        {post.media_url && (
+          <div className="post-card-media">
+            {post.media_type === "video" ? (
+              <video src={post.media_url} controls />
+            ) : (
+              <img src={post.media_url} alt="" />
+            )}
+          </div>
+        )}
+        {post.parent_post_id && (
+          <div className="crosspost-banner">
+            Responding to: <Link to={`/post/${post.parent_post_id}`}>{post.parent_title || "Deleted Post"}</Link>
+          </div>
+        )}
         <div className="post-card-meta">
+          <img 
+            src={post.author_avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${post.author}`} 
+            alt="" 
+            className="post-card-avatar" 
+          />
           Posted by{" "}
           <Link to={`/user/${post.author}`} className="post-card-author">
             {post.author}
@@ -43,6 +62,16 @@ export default function PostCard({ post, onVote }) {
           <Link to={`/post/${post.id}`} className="post-card-comments">
             {post.comment_count} comment{post.comment_count !== 1 ? "s" : ""}
           </Link>
+          <button 
+            className="post-footer-btn"
+            onClick={(e) => {
+              e.preventDefault();
+              navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+              alert("Link copied to clipboard!");
+            }}
+          >
+            Share
+          </button>
         </div>
       </div>
     </div>

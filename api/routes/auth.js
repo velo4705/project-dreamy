@@ -116,4 +116,30 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
+// PUT /api/auth/profile (requires token)
+router.put("/profile", auth, async (req, res) => {
+  try {
+    const { bio, avatar_url, banner_url, status_text, status_emoji, is_private } = req.body;
+    
+    const result = await pool.query(
+      `UPDATE users SET 
+        bio = COALESCE($1, bio),
+        avatar_url = COALESCE($2, avatar_url),
+        banner_url = COALESCE($3, banner_url),
+        status_text = COALESCE($4, status_text),
+        status_emoji = COALESCE($5, status_emoji),
+        is_private = COALESCE($6, is_private),
+        last_seen = NOW()
+       WHERE id = $7
+       RETURNING id, username, email, bio, avatar_url, banner_url, status_text, status_emoji, is_private, created_at`,
+      [bio, avatar_url, banner_url, status_text, status_emoji, is_private, req.user.id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Profile update error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 module.exports = router;

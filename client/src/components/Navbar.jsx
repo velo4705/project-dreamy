@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ThemeToggle from "./ThemeToggle";
 import "./Navbar.css";
 
 export default function Navbar() {
@@ -17,7 +16,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar">
+    <nav className="navbar glass-panel">
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
           Dreamy
@@ -40,6 +39,11 @@ export default function Navbar() {
                 + New Post
               </Link>
               <Link to={`/user/${user.username}`} className="navbar-user">
+                <img 
+                  src={user.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.username}`} 
+                  alt="" 
+                  className="navbar-avatar" 
+                />
                 {user.username}
               </Link>
               <button onClick={logout} className="btn btn-secondary">
@@ -56,7 +60,12 @@ export default function Navbar() {
               </Link>
             </>
           )}
-          <ThemeToggle />
+          <Link to="/messages" className="navbar-icon" title="Messages">
+            ✉️
+          </Link>
+          <Link to="/settings" className="navbar-settings" title="Settings & Credits">
+            ⚙️
+          </Link>
         </div>
       </div>
     </nav>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./CommentSection.css";
 
-export default function CommentSection({ comments, onAdd, onDelete }) {
+export default function CommentSection({ comments, postAuthorId, onAdd, onDelete }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [body, setBody] = useState("");
@@ -67,7 +67,15 @@ export default function CommentSection({ comments, onAdd, onDelete }) {
       style={{ marginLeft: depth * 24 }}
     >
       <div className="comment-meta">
+        <img 
+          src={comment.author_avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${comment.author}`} 
+          alt="" 
+          className="comment-avatar" 
+        />
         <span className="comment-author">{comment?.author}</span>
+        {comment?.author_id === postAuthorId && (
+          <span className="op-badge" title="Original Poster">OP</span>
+        )}
         <span className="comment-time">{comment?.created_at ? timeAgo(comment.created_at) : ""}</span>
       </div>
       <p className="comment-body">{comment?.body}</p>
