@@ -111,8 +111,15 @@ export default function Settings() {
     { name: "Royal Purple", color: "#a29bfe" },
     { name: "Sunlight Gold", color: "#fdcb6e" },
     { name: "Leaf Green", color: "#55efc4" },
+    { name: "Neon Cyan", color: "#00f2ff" },
+    { name: "Vivid Pink", color: "#ff00ff" },
+    { name: "Laser Lemon", color: "#faff00" },
     { name: "Sunset Orange", color: "#ff7675" },
   ];
+
+  const handleCustomColor = (e) => {
+    setAccent(e.target.value);
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -162,11 +169,21 @@ export default function Settings() {
                 <button
                   key={a.color}
                   className={`accent-btn ${accent === a.color ? "active" : ""}`}
-                  style={{ backgroundColor: a.color }}
+                  style={{ "--accent-bg": a.color }}
                   onClick={() => setAccent(a.color)}
                   title={a.name}
                 />
               ))}
+              {/* Custom Color Picker */}
+              <div className="custom-accent-wrapper" title="Custom Color">
+                <input 
+                  type="color" 
+                  className="custom-accent-input" 
+                  value={accent} 
+                  onChange={handleCustomColor} 
+                />
+                <div className={`accent-btn custom-trigger ${!VIBRANT_ACCENTS.some(a => a.color === accent) ? "active" : ""}`} />
+              </div>
             </div>
           </div>
         </div>

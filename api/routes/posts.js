@@ -219,6 +219,31 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
+// PUT /api/posts/:id - Edit a post
+router.put("/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, body } = req.body;
+    const userId = req.user.id;
+
+    // Check ownership
+    const postRes = await pool.query("SELECT author_id FROM posts WHERE id = $1", [id]);
+    if (postRes.rows.length === 0) return res.status(404).json({ error: "Post not found" });
+    if (postRes.rows[0].author_id !== userId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const result = await pool.query(
+      "UPDATE posts SET title = $1, body = $2, updated_at = NOW() WHERE id = $3 RETURNING *",
+      [title, body, id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // DELETE /api/posts/:id - Delete a post
 router.delete("/:id", auth, async (req, res) => {
   try {
