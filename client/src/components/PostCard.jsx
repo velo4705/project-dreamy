@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import { MessageSquare, Share2, CornerUpRight } from "lucide-react";
 import VoteButtons from "./VoteButtons";
+import MediaGallery from "./MediaGallery";
 import "./PostCard.css";
 
 export default function PostCard({ post, onVote }) {
@@ -15,62 +17,56 @@ export default function PostCard({ post, onVote }) {
   };
 
   return (
-    <div className="post-card">
-      <VoteButtons
-        score={post.score}
-        userVote={post.user_vote}
-        onVote={onVote}
-      />
+    <div className="post-card glass-panel">
+      <div className="post-card-sidebar">
+        <VoteButtons
+          score={post.score}
+          userVote={post.user_vote}
+          onVote={onVote}
+        />
+      </div>
       <div className="post-card-content">
         <Link to={`/post/${post.id}`} className="post-card-title">
           {post.title}
         </Link>
-        {post.media_url && (
-          <div className="post-card-media">
-            {post.media_type === "video" ? (
-              <video src={post.media_url} controls />
-            ) : (
-              <img src={post.media_url} alt="" />
-            )}
-          </div>
-        )}
+        
+        <MediaGallery 
+          media={post.media} 
+          mediaUrl={post.media_url} 
+          mediaType={post.media_type} 
+        />
+
         {post.parent_post_id && (
           <div className="crosspost-banner">
-            Responding to: <Link to={`/post/${post.parent_post_id}`}>{post.parent_title || "Deleted Post"}</Link>
+            <CornerUpRight size={14} />
+            Responding to: <Link to={`/post/${post.parent_post_id}`}>{post.parent_title || "Post"}</Link>
           </div>
         )}
+
         <div className="post-card-meta">
-          <img 
-            src={post.author_avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${post.author}`} 
-            alt="" 
-            className="post-card-avatar" 
-          />
-          Posted by{" "}
-          <Link to={`/user/${post.author}`} className="post-card-author">
-            {post.author}
-          </Link>{" "}
-          {timeAgo(post.created_at)}
+          {post.author_avatar && <img src={post.author_avatar} className="mini-avatar" alt="" />}
+          <span>Posted by <Link to={`/user/${post.author}`} className="author-link">{post.author}</Link></span>
+          <span className="dot">•</span>
+          <span>{timeAgo(post.created_at)}</span>
         </div>
-        {post.body && (
-          <p className="post-card-body">
-            {post.body.length > 200
-              ? post.body.substring(0, 200) + "..."
-              : post.body}
-          </p>
-        )}
+
+        <p className="post-card-body">
+          {post.body && post.body.length > 300 
+            ? `${post.body.substring(0, 300)}...` 
+            : post.body}
+        </p>
+
         <div className="post-card-footer">
-          <Link to={`/post/${post.id}`} className="post-card-comments">
-            {post.comment_count} comment{post.comment_count !== 1 ? "s" : ""}
+          <Link to={`/post/${post.id}`} className="footer-action">
+            <MessageSquare size={18} />
+            <span>{post.comment_count || 0} comments</span>
           </Link>
-          <button 
-            className="post-footer-btn"
-            onClick={(e) => {
-              e.preventDefault();
-              navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
-              alert("Link copied to clipboard!");
-            }}
-          >
-            Share
+          <button className="footer-action btn-link" onClick={() => {
+            navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+            alert("Link copied!");
+          }}>
+            <Share2 size={18} />
+            <span>Share</span>
           </button>
         </div>
       </div>

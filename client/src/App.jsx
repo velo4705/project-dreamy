@@ -11,6 +11,7 @@ import Search from "./pages/Search";
 import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
 import Messages from "./pages/Messages";
+import Friends from "./pages/Friends";
 
 function App() {
   return (
@@ -29,6 +30,8 @@ function App() {
               <Route path="/user/:username" element={<UserProfile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/messages" element={<Messages />} />
+              <Route path="/friends" element={<Friends />} />
+
             </Routes>
           </main>
         </BrowserRouter>

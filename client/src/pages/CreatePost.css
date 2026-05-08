@@ -1,41 +1,82 @@
-.create-post {
-  max-width: 600px;
-  margin: 0 auto;
+.media-upload-section {
+  margin: 1rem 0;
 }
 
-.create-post h2 {
-  color: var(--text-primary);
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.create-post form {
+.media-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--accent-soft);
+  border: 1px solid var(--border-light);
+}
+
+.media-preview-item img,
+.media-preview-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-media {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.remove-media:hover {
+  background: var(--upvote);
+}
+
+.add-media-btn {
+  aspect-ratio: 1;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-secondary);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.create-post input,
-.create-post textarea {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  font-family: inherit;
-  outline: none;
-}
-
-.create-post input:focus,
-.create-post textarea:focus {
+.add-media-btn:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
-.create-post textarea {
-  resize: vertical;
+.spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.create-post button {
-  align-self: flex-end;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

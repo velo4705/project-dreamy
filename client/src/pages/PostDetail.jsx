@@ -4,6 +4,7 @@ import api from "../api";
 import { useAuth } from "../context/AuthContext";
 import VoteButtons from "../components/VoteButtons";
 import CommentSection from "../components/CommentSection";
+import MediaGallery from "../components/MediaGallery";
 import "./PostDetail.css";
 
 export default function PostDetail() {
@@ -119,8 +120,8 @@ export default function PostDetail() {
   };
 
   return (
-    <div className="post-detail">
-      <div className="post-detail-main">
+    <div className="post-detail container">
+      <div className="post-detail-main glass-panel">
         <VoteButtons
           score={post.score}
           userVote={post.user_vote}
@@ -156,65 +157,41 @@ export default function PostDetail() {
           ) : (
             <>
               <h1 className="post-detail-title">{post?.title}</h1>
-              {post?.media_url && (
-                <div className="post-detail-media">
-                  {post?.media_type === "video" ? (
-                    <video src={post.media_url} controls />
-                  ) : (
-                    <img src={post.media_url} alt="" />
-                  )}
-                </div>
-              )}
+              
+              <MediaGallery 
+                media={post.media} 
+                mediaUrl={post.media_url} 
+                mediaType={post.media_type} 
+              />
+
               {post?.parent_post_id && (
                 <div className="crosspost-banner detail">
-                  Responding to: <Link to={`/post/${post.parent_post_id}`}>{post.parent_title || "Deleted Post"}</Link>
+                  Responding to: <Link to={`/post/${post.parent_post_id}`}>{post.parent_title || "Post"}</Link>
                 </div>
               )}
               <div className="post-detail-meta">
                 Posted by{" "}
                 <Link to={`/user/${post?.author}`}>{post?.author}</Link>{" "}
                 {post?.created_at ? timeAgo(post.created_at) : ""}
-                {post?.updated_at !== post?.created_at && " (edited)"}
               </div>
               {post?.body && <p className="post-detail-body">{post.body}</p>}
-              {isOwner && (
-                <div className="post-owner-actions">
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => setEditing(true)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-secondary btn-sm delete"
-                    onClick={handleDelete}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      alert("Link copied to clipboard!");
-                    }}
-                  >
-                    Share
-                  </button>
-                </div>
-              )}
-              {!isOwner && (
-                <div className="post-owner-actions">
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      alert("Link copied to clipboard!");
-                    }}
-                  >
-                    Share
-                  </button>
-                </div>
-              )}
+              <div className="post-owner-actions">
+                {isOwner && (
+                  <>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setEditing(true)}>Edit</button>
+                    <button className="btn btn-secondary btn-sm delete" onClick={handleDelete}>Delete</button>
+                  </>
+                )}
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("Link copied!");
+                  }}
+                >
+                  Share
+                </button>
+              </div>
             </>
           )}
         </div>

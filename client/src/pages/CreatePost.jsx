@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api";
 import { supabase } from "../supabase";
-import { Image, Video, X } from "lucide-react";
+import { Image, Video, X, Plus } from "lucide-react";
 import "./CreatePost.css";
 
 export default function CreatePost() {
@@ -14,8 +14,9 @@ export default function CreatePost() {
   const [parentId, setParentId] = useState("");
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [mediaUrl, setMediaUrl] = useState("");
-  const [mediaType, setMediaType] = useState("");
+  
+  // Changed to an array to support multiple media items
+  const [mediaItems, setMediaItems] = useState([]);
   const fileInputRef = useRef();
 
   if (!user) {
@@ -24,43 +25,53 @@ export default function CreatePost() {
   }
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const isVideo = file.type.startsWith("video/");
-    const limit = isVideo ? 15 : 5; // MB
-
-    if (file.size > limit * 1024 * 1024) {
-      alert(`File too large! Limit is ${limit}MB.`);
-      return;
-    }
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
 
     if (!supabase) {
       alert("Media upload is currently disabled (Server configuration missing).");
-      setUploading(false);
       return;
     }
 
+    setUploading(true);
     try {
-      const fileName = `${Date.now()}_${file.name}`;
-      const { data, error } = await supabase.storage
-        .from("media")
-        .upload(fileName, file);
+      const newItems = [];
+      for (const file of files) {
+        const isVideo = file.type.startsWith("video/");
+        const limit = isVideo ? 15 : 5; // MB
 
-      if (error) throw error;
+        if (file.size > limit * 1024 * 1024) {
+          alert(`File ${file.name} too large! Limit is ${limit}MB.`);
+          continue;
+        }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("media")
-        .getPublicUrl(data.path);
+        const fileName = `${Date.now()}_${file.name}`;
+        const { data, error: uploadError } = await supabase.storage
+          .from("media")
+          .upload(fileName, file);
 
-      setMediaUrl(publicUrl);
-      setMediaType(isVideo ? "video" : "image");
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("media")
+          .getPublicUrl(data.path);
+
+        newItems.push({
+          url: publicUrl,
+          type: isVideo ? "video" : "image"
+        });
+      }
+      setMediaItems(prev => [...prev, ...newItems]);
     } catch (err) {
       console.error("Upload failed:", err);
-      alert("Media upload failed.");
+      alert("One or more uploads failed.");
     } finally {
       setUploading(false);
     }
+  };
+
+  const removeMedia = (index) => {
+    setMediaItems(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -78,8 +89,10 @@ export default function CreatePost() {
         title, 
         body, 
         parent_post_id: finalParentId ? parseInt(finalParentId) : null,
-        media_url: mediaUrl,
-        media_type: mediaType
+        media: mediaItems, // Send the whole array
+        // Fallback for old single-media logic
+        media_url: mediaItems[0]?.url || "",
+        media_type: mediaItems[0]?.type || ""
       });
       navigate(`/post/${res.data.id}`);
     } catch (err) {
@@ -101,34 +114,43 @@ export default function CreatePost() {
         />
         
         <div className="media-upload-section">
-          {mediaUrl ? (
-            <div className="media-preview">
-              <button className="remove-media" onClick={() => { setMediaUrl(""); setMediaType(""); }}>
-                <X size={18} />
-              </button>
-              {mediaType === "video" ? (
-                <video src={mediaUrl} controls />
+          <div className="media-grid">
+            {mediaItems.map((item, index) => (
+              <div key={index} className="media-preview-item">
+                <button type="button" className="remove-media" onClick={() => removeMedia(index)}>
+                  <X size={14} />
+                </button>
+                {item.type === "video" ? (
+                  <video src={item.url} muted />
+                ) : (
+                  <img src={item.url} alt="" />
+                )}
+              </div>
+            ))}
+            
+            <button 
+              type="button" 
+              className="add-media-btn" 
+              onClick={() => fileInputRef.current.click()}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <div className="spinner-small"></div>
               ) : (
-                <img src={mediaUrl} alt="Preview" />
+                <Plus size={24} />
               )}
-            </div>
-          ) : (
-            <div className="media-buttons">
-              <button type="button" className="btn btn-secondary" onClick={() => fileInputRef.current.click()} disabled={uploading}>
-                {uploading ? "Uploading..." : <><Image size={20} /> Add Image/GIF</>}
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={() => fileInputRef.current.click()} disabled={uploading}>
-                <Video size={20} /> Add Video
-              </button>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleFileChange} 
-                style={{ display: "none" }} 
-                accept="image/*,video/*"
-              />
-            </div>
-          )}
+              <span>{mediaItems.length > 0 ? "Add More" : "Add Media"}</span>
+            </button>
+          </div>
+
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            style={{ display: "none" }} 
+            accept="image/*,video/*"
+            multiple // Allow selecting multiple at once!
+          />
         </div>
 
         <textarea

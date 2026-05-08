@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Search, Plus, Mail, Settings } from "lucide-react";
+import { Search, Plus, Mail, Settings, Users } from "lucide-react";
 import "./Navbar.css";
 
 export default function Navbar() {
@@ -61,6 +61,9 @@ export default function Navbar() {
               </Link>
             </>
           )}
+          <Link to="/friends" className="navbar-icon" title="Friends">
+            <Users size={22} />
+          </Link>
           <Link to="/messages" className="navbar-icon" title="Messages">
             <Mail size={22} />
           </Link>

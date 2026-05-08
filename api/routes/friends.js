@@ -92,4 +92,39 @@ router.get("/mutual/:otherUserId", auth, async (req, res) => {
   }
 });
 
+// GET /api/friends/requests - Get pending incoming friend requests
+router.get("/requests", auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT f.id, f.requester_id, u.username, u.avatar_url, f.created_at
+       FROM friendships f
+       JOIN users u ON f.requester_id = u.id
+       WHERE f.receiver_id = $1 AND f.status = 'pending'`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// GET /api/friends/list - Get all friends
+router.get("/list", auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.avatar_url, u.status_text, u.status_emoji, u.last_seen
+       FROM users u
+       JOIN friendships f ON (f.requester_id = u.id OR f.receiver_id = u.id)
+       WHERE ((f.requester_id = $1 AND f.receiver_id = u.id) OR (f.receiver_id = $1 AND f.requester_id = u.id))
+         AND f.status = 'accepted'
+         AND u.id != $1`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 module.exports = router;
+

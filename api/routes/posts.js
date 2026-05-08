@@ -16,7 +16,7 @@ router.get("/search", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const result = await pool.query(
-      `SELECT p.id, p.title, p.body, p.author_id, p.created_at,
+      `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.media,
               u.username AS author, u.avatar_url AS author_avatar
        FROM posts p
        LEFT JOIN users u ON p.author_id = u.id
@@ -64,14 +64,16 @@ router.get("/", async (req, res) => {
     const sql = `
       SELECT 
         p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
-        p.media_url, p.media_type, p.parent_post_id,
+        p.media_url, p.media_type, p.media, p.parent_post_id,
         u.username AS author,
         u.avatar_url AS author_avatar,
+        parent.title AS parent_title,
         COALESCE(v.score, 0)::int AS score,
         COALESCE(c.comment_count, 0)::int AS comment_count,
         COALESCE(uv.value, 0)::int AS user_vote
       FROM posts p
       LEFT JOIN users u ON p.author_id = u.id
+      LEFT JOIN posts parent ON p.parent_post_id = parent.id
       LEFT JOIN (SELECT post_id, SUM(value) as score FROM votes GROUP BY post_id) v ON v.post_id = p.id
       LEFT JOIN (SELECT post_id, COUNT(*) as comment_count FROM comments GROUP BY post_id) c ON c.post_id = p.id
       LEFT JOIN (SELECT post_id, value FROM votes WHERE user_id = $1) uv ON uv.post_id = p.id
@@ -108,13 +110,15 @@ router.get("/:id", async (req, res) => {
 
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
-              p.media_url, p.media_type, p.parent_post_id,
+              p.media_url, p.media_type, p.media, p.parent_post_id,
               u.username AS author,
               u.avatar_url AS author_avatar,
+              parent.title AS parent_title,
               (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
               COALESCE((SELECT value FROM votes WHERE user_id = $2 AND post_id = p.id), 0)::int AS user_vote
        FROM posts p
        LEFT JOIN users u ON p.author_id = u.id
+       LEFT JOIN posts parent ON p.parent_post_id = parent.id
        WHERE p.id = $1`,
       [id, userId]
     );
@@ -177,13 +181,11 @@ router.post("/:id/vote", auth, async (req, res) => {
     const postId = parseInt(id);
     if (isNaN(postId)) return res.status(400).json({ error: "Invalid post ID" });
 
-    // 1. Delete existing vote if any
     await pool.query(
       "DELETE FROM votes WHERE user_id = $1 AND post_id = $2",
       [userId, postId]
     );
 
-    // 2. If new value is not 0, insert it
     if (value !== 0) {
       await pool.query(
         "INSERT INTO votes (user_id, post_id, value) VALUES ($1, $2, $3)",
@@ -206,10 +208,10 @@ router.post("/:id/vote", auth, async (req, res) => {
 // POST /api/posts - Create
 router.post("/", auth, async (req, res) => {
   try {
-    const { title, body, parent_post_id, media_url, media_type } = req.body;
+    const { title, body, parent_post_id, media_url, media_type, media } = req.body;
     const result = await pool.query(
-      "INSERT INTO posts (title, body, author_id, parent_post_id, media_url, media_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [title, body, req.user.id, parent_post_id, media_url, media_type]
+      "INSERT INTO posts (title, body, author_id, parent_post_id, media_url, media_type, media) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [title, body, req.user.id, parent_post_id, media_url, media_type, JSON.stringify(media || [])]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
