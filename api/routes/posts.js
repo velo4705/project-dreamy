@@ -73,13 +73,16 @@ router.get("/:id", async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT p.*, u.username AS author, u.avatar_url AS author_avatar,
+      `SELECT p.id, p.title, p.body, p.author_id, p.created_at, p.updated_at,
+              p.media_url, p.media_type, p.parent_post_id,
+              u.username AS author,
+              u.avatar_url AS author_avatar,
               (SELECT COALESCE(SUM(value), 0)::int FROM votes WHERE post_id = p.id) AS score,
               COALESCE((SELECT value FROM votes WHERE user_id = $2 AND post_id = p.id), 0)::int AS user_vote
        FROM posts p
        JOIN users u ON p.author_id = u.id
        WHERE p.id = $1`,
-      [id, userId]
+      [parseInt(id), userId]
     );
 
     if (result.rows.length === 0) return res.status(404).json({ error: "Post not found" });
