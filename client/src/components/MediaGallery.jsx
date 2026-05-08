@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./MediaGallery.css";
 
 export default function MediaGallery({ media, mediaUrl, mediaType }) {
@@ -38,16 +38,28 @@ export default function MediaGallery({ media, mediaUrl, mediaType }) {
       >
         {items.map((item, index) => (
           <div key={index} className="media-slide">
-            {item.type === "video" ? (
-              <video 
-                src={item.url} 
-                controls 
-                preload="metadata"
-                className="carousel-video"
-              />
-            ) : (
-              <img src={item.url} alt="" loading="lazy" />
-            )}
+            {/* The Ambient/Blurred Background Layer */}
+            <div className="ambient-bg">
+              {item.type === "video" ? (
+                <video src={item.url} muted />
+              ) : (
+                <img src={item.url} alt="" />
+              )}
+            </div>
+
+            {/* The Main Content Layer (Uncropped) */}
+            <div className="media-content-wrapper">
+              {item.type === "video" ? (
+                <video 
+                  src={item.url} 
+                  controls 
+                  preload="metadata"
+                  className="carousel-video"
+                />
+              ) : (
+                <img src={item.url} alt="" loading="lazy" />
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -64,16 +76,12 @@ export default function MediaGallery({ media, mediaUrl, mediaType }) {
             ))}
           </div>
           
-          {currentIndex > 0 && (
-            <button className="nav-btn prev" onClick={() => scrollTo(currentIndex - 1)}>
-              <ChevronLeft size={20} />
-            </button>
-          )}
-          {currentIndex < items.length - 1 && (
-            <button className="nav-btn next" onClick={() => scrollTo(currentIndex + 1)}>
-              <ChevronRight size={20} />
-            </button>
-          )}
+          <button className="nav-btn prev" onClick={() => scrollTo(currentIndex - 1)} style={{ opacity: currentIndex === 0 ? 0.3 : 1 }}>
+            <ChevronLeft size={20} />
+          </button>
+          <button className="nav-btn next" onClick={() => scrollTo(currentIndex + 1)} style={{ opacity: currentIndex === items.length - 1 ? 0.3 : 1 }}>
+            <ChevronRight size={20} />
+          </button>
         </>
       )}
     </div>
