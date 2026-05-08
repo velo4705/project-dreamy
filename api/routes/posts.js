@@ -174,21 +174,32 @@ router.post("/:id/vote", auth, async (req, res) => {
     const { value } = req.body;
     const userId = req.user.id;
 
+    const postId = parseInt(id);
+    if (isNaN(postId)) return res.status(400).json({ error: "Invalid post ID" });
+
+    // 1. Delete existing vote if any
     await pool.query(
-      `INSERT INTO votes (user_id, post_id, value) 
-       VALUES ($1, $2, $3) 
-       ON CONFLICT (user_id, post_id) DO UPDATE SET value = $3`,
-      [userId, id, value]
+      "DELETE FROM votes WHERE user_id = $1 AND post_id = $2",
+      [userId, postId]
     );
+
+    // 2. If new value is not 0, insert it
+    if (value !== 0) {
+      await pool.query(
+        "INSERT INTO votes (user_id, post_id, value) VALUES ($1, $2, $3)",
+        [userId, postId, value]
+      );
+    }
 
     const scoreResult = await pool.query(
       "SELECT COALESCE(SUM(value), 0)::int AS score FROM votes WHERE post_id = $1",
-      [id]
+      [postId]
     );
 
     res.json({ score: scoreResult.rows[0].score, user_vote: value });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Vote Error:", err);
+    res.status(500).json({ error: "Voting failed: " + err.message });
   }
 });
 
