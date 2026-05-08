@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/search", async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q) return res.json([]); // Return flat array if no query
+    if (!q) return res.json([]);
 
     const result = await pool.query(
       `SELECT p.id, p.title, p.body, p.author_id, p.created_at,
@@ -20,7 +20,7 @@ router.get("/search", async (req, res) => {
        ORDER BY p.created_at DESC LIMIT 20`,
       [`%${q}%`]
     );
-    res.json(result.rows); // Frontend likely expects a flat array here
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -110,7 +110,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// GET /api/posts/:id/comments - Get comments for a post
+// GET /api/posts/:id/comments - List comments
 router.get("/:id/comments", async (req, res) => {
   try {
     const result = await pool.query(
@@ -127,6 +127,31 @@ router.get("/:id/comments", async (req, res) => {
   }
 });
 
+// POST /api/posts/:id/comments - Add a comment
+router.post("/:id/comments", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body, parent_id } = req.body;
+    const author_id = req.user.id;
+
+    const result = await pool.query(
+      "INSERT INTO comments (post_id, author_id, body, parent_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      [id, author_id, body, parent_id]
+    );
+
+    // Fetch author info for the new comment
+    const commentWithAuthor = await pool.query(
+      `SELECT c.*, u.username AS author, u.avatar_url AS author_avatar 
+       FROM comments c JOIN users u ON c.author_id = u.id WHERE c.id = $1`,
+      [result.rows[0].id]
+    );
+
+    res.status(201).json(commentWithAuthor.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/posts/:id/vote - Vote
 router.post("/:id/vote", auth, async (req, res) => {
   try {
@@ -134,7 +159,6 @@ router.post("/:id/vote", auth, async (req, res) => {
     const { value } = req.body;
     const userId = req.user.id;
 
-    // Toggle logic: If user sends 0, they are removing the vote
     await pool.query(
       `INSERT INTO votes (user_id, post_id, value) 
        VALUES ($1, $2, $3) 
