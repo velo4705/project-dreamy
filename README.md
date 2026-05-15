@@ -26,7 +26,7 @@ Experience the universe here:
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: React 19 (Vite)
+- **Framework**: React 19 (Vite) Jsx
 - **Icons**: Lucide React
 - **Theming**: CSS Variables + Backdrop Filters (Glassmorphism)
 - **Routing**: React Router DOM 7
@@ -69,7 +69,7 @@ Built by:
 - **[@velo4705](https://github.com/velo4705)** 
 - **[@Logizel](https://github.com/Logizel)** 
 
-*An Official DBMS Project in Beta Phase (2026).*
+*An Official DBMS Project (2026).*
 
 ---
 
