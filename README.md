@@ -66,8 +66,8 @@ Experience the universe here:
 ## 👨‍💻 Developers
 
 Built by:
-- **[@velo4705](https://github.com/velo4705)** 
-- **[@Logizel](https://github.com/Logizel)** 
+- **[velo4705](https://github.com/velo4705)** 
+- **[Logizel](https://github.com/Logizel)** 
 
 *An Official DBMS Project (2026).*
 
