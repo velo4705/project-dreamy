@@ -19,7 +19,7 @@
 ## 🌐 Live Demo
 
 Experience the universe here:  
-👉 **[https://project-dreamy.vercel.app/](https://project-dreamy.vercel.app/)**
+👉 **[https://project-dreamy.vercel.app/](https://project-dreamy.vercel.app)**
 
 ---
 
